@@ -44,6 +44,12 @@ class KifuwarabesColleague():
         )
         """思考"""
 
+        self._min_max = MinMax(
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
+            kifuwarabes_colleague=self
+        )
+        """ミニマックス戦略"""
+
     @property
     def sense_of_beauty(self):
         """美意識"""
@@ -53,6 +59,11 @@ class KifuwarabesColleague():
     def thought(self):
         """思考"""
         return self._thought
+
+    @property
+    def min_max(self):
+        """ミニマックス戦略"""
+        return self._min_max
 
 class Kifuwarabe():
     """きふわらべ"""
@@ -171,11 +182,6 @@ class Thought():
         self._kifuwarabes_colleague = kifuwarabes_colleague
         """きふわらべの同僚"""
 
-        self._min_max = MinMax(
-            kifuwarabes_subordinate=self.kifuwarabes_subordinate
-        )
-        """ミニマックス戦略"""
-
     @property
     def kifuwarabes_subordinate(self):
         """きふわらべの部下"""
@@ -185,11 +191,6 @@ class Thought():
     def kifuwarabes_colleague(self):
         """きふわらべの同僚"""
         return self._kifuwarabes_colleague
-
-    @property
-    def min_max(self):
-        """ミニマックス戦略"""
-        return self._min_max
 
     def do_it(self):
         """それをする"""
@@ -264,11 +265,11 @@ class Thought():
             self.kifuwarabes_subordinate.board.push(move)
             """一手指す"""
 
-            checked_value = self.min_max.check_board()
+            checked_value = self.kifuwarabes_colleague.min_max.check_board()
             """あれば、決まりきった盤面評価値"""
 
             if checked_value is None:
-                value = -self.min_max.do_it(depth=2)
+                value = -self.kifuwarabes_colleague.min_max.do_it(depth=2)
                 """将来獲得できるであろう、最も良い、最低限の評価値"""
 
             else:
@@ -344,7 +345,7 @@ class MaterialsValue():
 class MinMax():
     """ミニマックス戦略"""
 
-    def __init__(self, kifuwarabes_subordinate):
+    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
         """初期化
 
         Parameters
@@ -356,10 +357,18 @@ class MinMax():
         self._kifuwarabes_subordinate = kifuwarabes_subordinate
         """きふわらべの部下"""
 
+        self._kifuwarabes_colleague = kifuwarabes_colleague
+        """きふわらべの同僚"""
+
     @property
     def kifuwarabes_subordinate(self):
         """きふわらべの部下"""
         return self._kifuwarabes_subordinate
+
+    @property
+    def kifuwarabes_colleague(self):
+        """きふわらべの同僚"""
+        return self._kifuwarabes_colleague
 
     def check_board(self):
         """盤面の評価値"""
