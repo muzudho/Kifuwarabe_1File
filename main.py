@@ -20,11 +20,37 @@ sente_dragon=14 # ▲竜
 sente_nouse=15 # 未使用
 gote_none=16 # 先手の駒に足すと、後手の駒になる
 
+class KifuwarabesColleague():
+    """きふわらべの同僚"""
+
+    def __init__(self, kifuwarabe):
+        """初期化"""
+
+        self._sense_of_beauty = SenseOfBeauty(
+            kifuwarabe=kifuwarabe,
+            kifuwarabes_colleague=self
+        )
+        """美意識"""
+
+    @property
+    def sense_of_beauty(self):
+        """美意識"""
+        return self._sense_of_beauty
+
 class Kifuwarabe():
     """きふわらべ"""
 
     def __init__(self):
-        """初期化"""
+        """初期化
+
+        Parameters
+        ----------
+        kifuwarabes_colleague
+            きふわらべの同僚
+        """
+
+        self._kifuwarabes_colleague = KifuwarabesColleague(kifuwarabe=self)
+        """きふわらべの同僚"""
 
         self._subordinate = KifuwarabesSubordinate()
         """きふわらべの部下"""
@@ -34,10 +60,10 @@ class Kifuwarabe():
         )
         """思考"""
 
-        self._sense_of_beauty = SenseOfBeauty(
-            kifuwarabes_subordinate=self.subordinate
-        )
-        """美意識"""
+    @property
+    def kifuwarabes_colleague(self):
+        """きふわらべの同僚"""
+        return self._kifuwarabes_colleague
 
     @property
     def subordinate(self):
@@ -389,24 +415,33 @@ class MinMax():
 class SenseOfBeauty():
     """美意識"""
 
-    def __init__(self, kifuwarabes_subordinate):
+    def __init__(self, kifuwarabe, kifuwarabes_colleague):
         """初期化
 
         Parameters
         ----------
-        kifuwarabes_subordinate
-            きふわらべの部下
+        kifuwarabe
+            きふわらべ
+        kifuwarabes_colleague
+            きふわらべの同僚
         """
 
-        self._kifuwarabes_subordinate = kifuwarabes_subordinate
-        """きふわらべの部下"""
+        self._kifuwarabe = kifuwarabe
+
+        self._kifuwarabes_colleague = kifuwarabes_colleague
+        """きふわらべの同僚"""
 
     @property
-    def kifuwarabes_subordinate(self):
-        """きふわらべの部下"""
-        return self._kifuwarabes_subordinate
+    def kifuwarabe(self):
+        """きふわらべ"""
+        return self._kifuwarabe
 
-    def check_ranging_rook(board):
+    @property
+    def kifuwarabes_colleague(self):
+        """きふわらべの同僚"""
+        return self._kifuwarabes_colleague
+
+    def check_ranging_rook(self):
         """振り飛車かどうか調べる
         0: 何でもない
         1: 相居飛車
@@ -424,7 +459,7 @@ class SenseOfBeauty():
         sq_idx = 1 # square index
 
         rook_pos = []
-        for index, piece in enumerate(board.pieces):
+        for index, piece in enumerate(self.kifuwarabe.board.pieces):
             if piece == sente_rook or piece == sente_rook + gote_none:
                 rook_pos.append((piece,index))
 
