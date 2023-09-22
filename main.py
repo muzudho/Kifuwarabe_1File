@@ -691,14 +691,20 @@ class Thought():
                 print('info score mate 1 pv {}'.format(cshogi.move_to_usi(matemove)))
                 return cshogi.move_to_usi(matemove)
 
-        legal_moves = list(self.kifuwarabes_subordinate.board.legal_moves)
-        """合法手一覧"""
+        # move = self.choice_random(list(self.kifuwarabes_subordinate.board.legal_moves))
+        (current_beta, bestmove_list) = self.kifuwarabes_colleague.min_max.do_it(
+            depth=0,
+            alpha = -9999999, # 数ある選択肢の中の、評価値の下限。この下限値は、ベータ値いっぱいまで上げたい"""
+            beta = 9999999, # 数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない
+            is_root = True
+        )
+        """将来獲得できるであろう、最も良い、最低限の評価値"""
 
-        # move = self.choice_random(legal_moves)
-        (move, alpha) = self.choice_min_max(legal_moves)
-        """指し手を１つ選ぶ"""
+        alpha = -current_beta
+        bestmove = random.choice(bestmove_list)
+        """候補手の中からランダムに選ぶ"""
 
-        return (cshogi.move_to_usi(move), alpha)
+        return (cshogi.move_to_usi(bestmove), alpha)
         """指し手の記法で返却"""
 
     # def choice_random(self, legal_moves):
@@ -730,68 +736,6 @@ class Thought():
     # 
     #     return move
 
-    def choice_min_max(self, legal_moves):
-        """ミニマックス戦略で指し手を選ぶ"""
-
-        # α は、わたし。自分から見た評価値の下限値
-        # β は、あなた。相手はベーター値より大きい評価値の選択肢は、残さない
-
-        alpha = -9999999
-        """数ある選択肢の中の、評価値の下限。この下限値は、ベータ値いっぱいまで上げたい"""
-
-        beta = 9999999
-        """数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない"""
-
-        beta_cutoff = False
-
-        best_move_list = []
-
-        for move in legal_moves:
-
-            self.kifuwarabes_subordinate.board.push(move)
-            """一手指す"""
-
-            checked_beta = self.kifuwarabes_colleague.board_value.eval()
-            """あれば、決まりきった盤面評価値"""
-
-            if checked_beta is None:
-                """別途、計算が必要なケース"""
-
-                (current_beta, _move_list) = self.kifuwarabes_colleague.min_max.do_it(
-                    depth=2,
-                    alpha=-beta,    # ベーター値は、相手から見ればアルファー値
-                    beta=-alpha)    # アルファー値は、相手から見ればベーター値
-                """将来獲得できるであろう、最も良い、最低限の評価値"""
-
-                current_alpha = -current_beta
-
-            else:
-                current_alpha = -checked_beta
-                """盤面の決まりきった評価値"""
-
-            if alpha < current_alpha:
-                alpha = current_alpha
-                best_move_list = [move]
-                """いわゆる、アルファー・アップデート。
-                将来獲得できるであろう、最も良い、最低限の評価値が、上がった"""
-
-            elif current_alpha == alpha:
-                best_move_list.append(move)
-                """評価値が等しい指し手を追加"""
-
-            if beta < current_alpha:
-                """ベーター・カット"""
-                beta_cutoff = True
-
-            self.kifuwarabes_subordinate.board.pop()
-            """一手戻す"""
-
-            if beta_cutoff:
-                """これより先の兄弟は、選ばれることはないので打ち切る"""
-                break
-
-        return (random.choice(best_move_list), alpha)
-        """候補手の中からランダムに選ぶ"""
 
 class MinMax():
     """ミニマックス戦略
@@ -825,7 +769,7 @@ class MinMax():
         """きふわらべの同僚"""
         return self._kifuwarabes_colleague
 
-    def do_it(self, depth, alpha, beta):
+    def do_it(self, depth, alpha, beta, is_root=False):
         """それをする
 
         Parameters
@@ -838,12 +782,12 @@ class MinMax():
             β は、あなた。数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない
         """
 
-        if depth == 0:
+        if is_root:
             best_move_list = []
 
         beta_cutoff = False
 
-        for move in self.kifuwarabes_subordinate.board.legal_moves:
+        for move in list(self.kifuwarabes_subordinate.board.legal_moves):
 
             self.kifuwarabes_subordinate.board.push(move)
             """一手指す"""
@@ -917,10 +861,10 @@ class MinMax():
                 """いわゆるアルファー・アップデート。
                 自分が将来獲得できるであろう最低限の評価値が、増えた"""
 
-                if depth == 0:
+                if is_root:
                     best_move_list = [move]
 
-            elif depth == 0 and current_alpha == alpha:
+            elif is_root and current_alpha == alpha:
                 best_move_list.append(move)
                 """評価値が等しい指し手を追加"""
 
@@ -935,7 +879,7 @@ class MinMax():
                 """これより先の兄弟は、選ばれることはないので打ち切る"""
                 break
 
-        if depth == 0:
+        if is_root:
             return (alpha, best_move_list)
         else:
             return (alpha, None)
