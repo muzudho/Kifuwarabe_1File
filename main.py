@@ -429,7 +429,7 @@ class KifuwarabesColleague():
         return self._min_max
 
 class MaterialsValue():
-    """先手から見た駒の価値"""
+    """手番から見た駒割評価"""
 
     def __init__(self):
         # 利き１個 100点換算
@@ -477,15 +477,15 @@ class MaterialsValue():
         return self._on_board
 
     def eval(self, board):
-        """評価"""
+        """手番から見た評価"""
 
-        value = sum(self.on_board[p] for p in board.pieces if p > 0 )
+        value = sum(self.on_board[pc] for pc in board.pieces if 0 < pc)
         """盤上の駒の価値"""
 
         pieces_in_hand = board.pieces_in_hand
         """持ち駒"""
 
-        value += sum(self.hand[p] * (pieces_in_hand[cshogi.BLACK][p] - pieces_in_hand[cshogi.WHITE][p]) for p in range(7) )
+        value += sum(self.hand[hand_idx] * (pieces_in_hand[cshogi.BLACK][hand_idx] - pieces_in_hand[cshogi.WHITE][hand_idx]) for hand_idx in range(7) )
         """持ち駒の価値"""
 
         if board.turn == cshogi.BLACK:
@@ -810,15 +810,9 @@ class MinMax():
                 else:
                     """末端局面評価値"""
 
-                    # 先手から見た駒得
-                    sente_material = self.kifuwarabes_subordinate.materials_value.eval(
+                    # 手番から見た駒割評価
+                    current_alpha = -self.kifuwarabes_subordinate.materials_value.eval(
                         board=self.kifuwarabes_subordinate.board)
-
-                    if self.kifuwarabes_subordinate.board.turn == cshogi.BLACK:
-                        # 相手が先手
-                        current_alpha = -sente_material
-                    else:
-                        current_alpha = sente_material
 
                     ranging_rook = self.kifuwarabes_colleague.sense_of_beauty.check_ranging_rook()
 
