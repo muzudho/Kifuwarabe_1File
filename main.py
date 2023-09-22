@@ -288,7 +288,12 @@ class Kifuwarabe():
 
             elif cmd[0] == 'go':
                 """思考開始～最善手返却"""
-                print('bestmove ' + self.go(), flush=True)
+
+                (bestmove, max_alpha) = self.go()
+
+                print(f'info depth 1 seldepth 1 time 1 nodes 1 score cp {max_alpha} string')
+
+                print(f'bestmove {bestmove}', flush=True)
 
             elif cmd[0] == 'stop':
                 """中断"""
@@ -661,10 +666,10 @@ class Thought():
         """合法手一覧"""
 
         # move = self.choice_random(legal_moves)
-        move = self.choice_min_max(legal_moves)
+        (move, max_alpha) = self.choice_min_max(legal_moves)
         """指し手を１つ選ぶ"""
 
-        return cshogi.move_to_usi(move)
+        return (cshogi.move_to_usi(move), max_alpha)
         """指し手の記法で返却"""
 
     # def choice_random(self, legal_moves):
@@ -754,7 +759,7 @@ class Thought():
                 """これより先の兄弟は、選ばれることはないので打ち切る"""
                 break
 
-        return random.choice(best_move_list)
+        return (random.choice(best_move_list), max_alpha)
         """候補手の中からランダムに選ぶ"""
 
 class MinMax():
