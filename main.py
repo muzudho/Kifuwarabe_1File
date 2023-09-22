@@ -20,51 +20,6 @@ sente_dragon=14 # ▲竜
 sente_nouse=15 # 未使用
 gote_none=16 # 先手の駒に足すと、後手の駒になる
 
-class KifuwarabesColleague():
-    """きふわらべの同僚"""
-
-    def __init__(self, kifuwarabes_subordinate):
-        """初期化
-
-        Parameters
-        ----------
-        kifuwarabes_subordinate
-            きふわらべの部下
-        """
-
-        self._sense_of_beauty = SenseOfBeauty(
-            kifuwarabes_subordinate=kifuwarabes_subordinate,
-            kifuwarabes_colleague=self
-        )
-        """美意識"""
-
-        self._thought = Thought(
-            kifuwarabes_subordinate=kifuwarabes_subordinate,
-            kifuwarabes_colleague=self
-        )
-        """思考"""
-
-        self._min_max = MinMax(
-            kifuwarabes_subordinate=kifuwarabes_subordinate,
-            kifuwarabes_colleague=self
-        )
-        """ミニマックス戦略"""
-
-    @property
-    def sense_of_beauty(self):
-        """美意識"""
-        return self._sense_of_beauty
-
-    @property
-    def thought(self):
-        """思考"""
-        return self._thought
-
-    @property
-    def min_max(self):
-        """ミニマックス戦略"""
-        return self._min_max
-
 class Kifuwarabe():
     """きふわらべ"""
 
@@ -146,6 +101,8 @@ class KifuwarabesSubordinate():
     """きふわらべの部下"""
 
     def __init__(self):
+        """初期化"""
+
         self._board = cshogi.Board()
         """盤"""
 
@@ -161,6 +118,176 @@ class KifuwarabesSubordinate():
     def materials_value(self):
         """駒の価値"""
         return self._materials_value
+
+class KifuwarabesColleague():
+    """きふわらべの同僚"""
+
+    def __init__(self, kifuwarabes_subordinate):
+        """初期化
+
+        Parameters
+        ----------
+        kifuwarabes_subordinate
+            きふわらべの部下
+        """
+
+        self._sense_of_beauty = SenseOfBeauty(
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
+            kifuwarabes_colleague=self
+        )
+        """美意識"""
+
+        self._thought = Thought(
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
+            kifuwarabes_colleague=self
+        )
+        """思考"""
+
+        self._min_max = MinMax(
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
+            kifuwarabes_colleague=self
+        )
+        """ミニマックス戦略"""
+
+    @property
+    def sense_of_beauty(self):
+        """美意識"""
+        return self._sense_of_beauty
+
+    @property
+    def thought(self):
+        """思考"""
+        return self._thought
+
+    @property
+    def min_max(self):
+        """ミニマックス戦略"""
+        return self._min_max
+
+class MaterialsValue():
+    """駒の価値"""
+
+    def __init__(self):
+        self._hand = [90,315,405,495,540,855,990,]
+        """持ち駒。歩、香、桂、銀、金、角、飛"""
+
+        self._on_board = [
+            0,90,315,405,495,855,990,540,0,
+            # None、▲歩、▲香、▲桂、▲銀、▲角、▲飛、▲金、▲玉、
+            540,540,540,540,945,1395,0,
+            # ▲と、▲杏、▲圭、▲全、▲馬、▲竜、未使用、
+            0,-90,-315,-405,-495,-855,-990,-540,0,
+            # 未使用、▽歩、▽香、▽桂、▽銀、▽角、▽飛、▽金、▽玉、
+            -540,-540,-540,-540,-945,-1395,0,0,
+            # ▽と、▽杏、▽圭、▽全、▽馬、▽竜、未使用、未使用、
+            ]
+        """盤上の駒の価値
+        📖 [cshogiのサンプルプログラム(MinMax探索)](https://tadaoyamaoka.hatenablog.com/entry/2023/08/13/223655)
+        """
+
+    @property
+    def hand(self):
+        """持ち駒の価値"""
+        return self._hand
+
+    @property
+    def on_board(self):
+        """盤上の駒の価値"""
+        return self._on_board
+
+    def eval(self, board):
+        """評価"""
+
+        eval_mat = sum(self.on_board[p] for p in board.pieces if p > 0 )
+        """盤上の駒の価値"""
+
+        pieces_in_hand = board.pieces_in_hand
+        """持ち駒"""
+
+        eval_mat += sum(self.hand[p] * (pieces_in_hand[0][p] - pieces_in_hand[1][p]) for p in range(7) )
+        """持ち駒の価値"""
+
+        if board.turn == cshogi.BLACK:
+            return eval_mat
+        else:
+            """後手は評価値の正負を反転"""
+            return -eval_mat
+
+class SenseOfBeauty():
+    """美意識"""
+
+    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
+        """初期化
+
+        Parameters
+        ----------
+        kifuwarabes_subordinate
+            きふわらべの部下
+        kifuwarabes_colleague
+            きふわらべの同僚
+        """
+
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
+
+        self._kifuwarabes_colleague = kifuwarabes_colleague
+        """きふわらべの同僚"""
+
+    @property
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
+
+    @property
+    def kifuwarabes_colleague(self):
+        """きふわらべの同僚"""
+        return self._kifuwarabes_colleague
+
+    def check_ranging_rook(self):
+        """振り飛車かどうか調べる
+        0: 何でもない
+        1: 相居飛車
+        2: 先手振り飛車、後手居飛車
+        3: 先手居飛車、後手振り飛車
+        4: 相振り飛車
+        """
+
+        # 局面には２つの飛車がある。
+        # 盤上に自分の飛車、相手の飛車があるときのみ発動する
+
+        sente_idx = 0
+        gote_idx = 1
+        piece_idx = 0 # piece index
+        sq_idx = 1 # square index
+
+        rook_pos = []
+        for index, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
+            if piece == sente_rook or piece == sente_rook + gote_none:
+                rook_pos.append((piece,index))
+
+        if len(rook_pos) == 2:
+            if rook_pos[sente_idx][piece_idx] == rook_pos[gote_idx][piece_idx]:
+                """先手、後手が分かれていなければ、対象外"""
+                pass
+
+            # 先手、後手の順にする
+            if rook_pos[gote_idx][piece_idx] == sente_rook and rook_pos[sente_idx][piece_idx] == sente_rook + gote_none:
+                temp = rook_pos[gote_idx]
+                rook_pos[gote_idx] = rook_pos[sente_idx]
+                rook_pos[sente_idx] = temp
+
+            if rook_pos[sente_idx][sq_idx] == 28:
+                if rook_pos[gote_idx][sq_idx] == 82:
+                    return 1 # 相居飛車
+                else:
+                    return 3 # 後手振り飛車
+            else:
+                if rook_pos[gote_idx][sq_idx] == 82:
+                    return 2 # 先手振り飛車
+                else:
+                    return 4 # 相振り飛車
+
+        return 0 # 何でもない
 
 class Thought():
     """思考"""
@@ -293,55 +420,6 @@ class Thought():
 
         return bestmove
 
-class MaterialsValue():
-    """駒の価値"""
-
-    def __init__(self):
-        self._hand = [90,315,405,495,540,855,990,]
-        """持ち駒。歩、香、桂、銀、金、角、飛"""
-
-        self._on_board = [
-            0,90,315,405,495,855,990,540,0,
-            # None、▲歩、▲香、▲桂、▲銀、▲角、▲飛、▲金、▲玉、
-            540,540,540,540,945,1395,0,
-            # ▲と、▲杏、▲圭、▲全、▲馬、▲竜、未使用、
-            0,-90,-315,-405,-495,-855,-990,-540,0,
-            # 未使用、▽歩、▽香、▽桂、▽銀、▽角、▽飛、▽金、▽玉、
-            -540,-540,-540,-540,-945,-1395,0,0,
-            # ▽と、▽杏、▽圭、▽全、▽馬、▽竜、未使用、未使用、
-            ]
-        """盤上の駒の価値
-        📖 [cshogiのサンプルプログラム(MinMax探索)](https://tadaoyamaoka.hatenablog.com/entry/2023/08/13/223655)
-        """
-
-    @property
-    def hand(self):
-        """持ち駒の価値"""
-        return self._hand
-
-    @property
-    def on_board(self):
-        """盤上の駒の価値"""
-        return self._on_board
-
-    def eval(self, board):
-        """評価"""
-
-        eval_mat = sum(self.on_board[p] for p in board.pieces if p > 0 )
-        """盤上の駒の価値"""
-
-        pieces_in_hand = board.pieces_in_hand
-        """持ち駒"""
-
-        eval_mat += sum(self.hand[p] * (pieces_in_hand[0][p] - pieces_in_hand[1][p]) for p in range(7) )
-        """持ち駒の価値"""
-
-        if board.turn == cshogi.BLACK:
-            return eval_mat
-        else:
-            """後手は評価値の正負を反転"""
-            return -eval_mat
-
 class MinMax():
     """ミニマックス戦略"""
 
@@ -432,82 +510,6 @@ class MinMax():
 
         return max_value
         """自分が将来獲得できるであろう、もっとも良い、最低限の評価値"""
-
-class SenseOfBeauty():
-    """美意識"""
-
-    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
-        """初期化
-
-        Parameters
-        ----------
-        kifuwarabes_subordinate
-            きふわらべの部下
-        kifuwarabes_colleague
-            きふわらべの同僚
-        """
-
-        self._kifuwarabes_subordinate = kifuwarabes_subordinate
-        """きふわらべの部下"""
-
-        self._kifuwarabes_colleague = kifuwarabes_colleague
-        """きふわらべの同僚"""
-
-    @property
-    def kifuwarabes_subordinate(self):
-        """きふわらべの部下"""
-        return self._kifuwarabes_subordinate
-
-    @property
-    def kifuwarabes_colleague(self):
-        """きふわらべの同僚"""
-        return self._kifuwarabes_colleague
-
-    def check_ranging_rook(self):
-        """振り飛車かどうか調べる
-        0: 何でもない
-        1: 相居飛車
-        2: 先手振り飛車、後手居飛車
-        3: 先手居飛車、後手振り飛車
-        4: 相振り飛車
-        """
-
-        # 局面には２つの飛車がある。
-        # 盤上に自分の飛車、相手の飛車があるときのみ発動する
-
-        sente_idx = 0
-        gote_idx = 1
-        piece_idx = 0 # piece index
-        sq_idx = 1 # square index
-
-        rook_pos = []
-        for index, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
-            if piece == sente_rook or piece == sente_rook + gote_none:
-                rook_pos.append((piece,index))
-
-        if len(rook_pos) == 2:
-            if rook_pos[sente_idx][piece_idx] == rook_pos[gote_idx][piece_idx]:
-                """先手、後手が分かれていなければ、対象外"""
-                pass
-
-            # 先手、後手の順にする
-            if rook_pos[gote_idx][piece_idx] == sente_rook and rook_pos[sente_idx][piece_idx] == sente_rook + gote_none:
-                temp = rook_pos[gote_idx]
-                rook_pos[gote_idx] = rook_pos[sente_idx]
-                rook_pos[sente_idx] = temp
-
-            if rook_pos[sente_idx][sq_idx] == 28:
-                if rook_pos[gote_idx][sq_idx] == 82:
-                    return 1 # 相居飛車
-                else:
-                    return 3 # 後手振り飛車
-            else:
-                if rook_pos[gote_idx][sq_idx] == 82:
-                    return 2 # 先手振り飛車
-                else:
-                    return 4 # 相振り飛車
-
-        return 0 # 何でもない
 
 if __name__ == '__main__':
     """コマンドから実行時"""
