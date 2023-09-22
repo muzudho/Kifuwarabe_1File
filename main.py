@@ -131,6 +131,12 @@ class KifuwarabesColleague():
             きふわらべの部下
         """
 
+        self._board_value = BoardValue(
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
+            kifuwarabes_colleague=self
+        )
+        """盤の決まりきった価値"""
+
         self._sense_of_beauty = SenseOfBeauty(
             kifuwarabes_subordinate=kifuwarabes_subordinate,
             kifuwarabes_colleague=self
@@ -148,6 +154,11 @@ class KifuwarabesColleague():
             kifuwarabes_colleague=self
         )
         """ミニマックス戦略"""
+
+    @property
+    def board_value(self):
+        """盤の決まりきった価値"""
+        return self._board_value
 
     @property
     def sense_of_beauty(self):
@@ -212,6 +223,58 @@ class MaterialsValue():
         else:
             """後手は評価値の正負を反転"""
             return -eval_mat
+
+class BoardValue():
+    """盤の決まりきった価値"""
+
+    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
+        """初期化
+
+        Parameters
+        ----------
+        kifuwarabes_subordinate
+            きふわらべの部下
+        kifuwarabes_colleague
+            きふわらべの同僚
+        """
+
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
+
+        self._kifuwarabes_colleague = kifuwarabes_colleague
+        """きふわらべの同僚"""
+
+    @property
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
+
+    @property
+    def kifuwarabes_colleague(self):
+        """きふわらべの同僚"""
+        return self._kifuwarabes_colleague
+
+    def eval(self):
+        """評価"""
+        if self.kifuwarabes_subordinate.board.is_game_over():
+            return -30000
+        if self.kifuwarabes_subordinate.board.is_nyugyoku():
+            return 30000
+
+        draw = self.kifuwarabes_subordinate.board.is_draw(16)
+        if draw == cshogi.REPETITION_DRAW:
+            return 0
+        if draw == cshogi.REPETITION_WIN:
+            return 30000
+        if draw == cshogi.REPETITION_LOSE:
+            return -30000
+        if draw == cshogi.REPETITION_SUPERIOR:
+            return 30000
+        if draw == cshogi.REPETITION_INFERIOR:
+            return -30000
+
+        """別途、計算が必要"""
+        return None
 
 class SenseOfBeauty():
     """美意識"""
@@ -392,7 +455,7 @@ class Thought():
             self.kifuwarabes_subordinate.board.push(move)
             """一手指す"""
 
-            checked_value = self.kifuwarabes_colleague.min_max.check_board()
+            checked_value = self.kifuwarabes_colleague.board_value.eval()
             """あれば、決まりきった盤面評価値"""
 
             if checked_value is None:
@@ -448,28 +511,6 @@ class MinMax():
         """きふわらべの同僚"""
         return self._kifuwarabes_colleague
 
-    def check_board(self):
-        """盤面の評価値"""
-        if self.kifuwarabes_subordinate.board.is_game_over():
-            return -30000
-        if self.kifuwarabes_subordinate.board.is_nyugyoku():
-            return 30000
-
-        draw = self.kifuwarabes_subordinate.board.is_draw(16)
-        if draw == cshogi.REPETITION_DRAW:
-            return 0
-        if draw == cshogi.REPETITION_WIN:
-            return 30000
-        if draw == cshogi.REPETITION_LOSE:
-            return -30000
-        if draw == cshogi.REPETITION_SUPERIOR:
-            return 30000
-        if draw == cshogi.REPETITION_INFERIOR:
-            return -30000
-
-        """別途、計算が必要"""
-        return None
-
     def do_it(self, depth):
         """それをする
 
@@ -484,7 +525,7 @@ class MinMax():
             self.kifuwarabes_subordinate.board.push(move)
             """一手指す"""
 
-            checked_value = self.check_board()
+            checked_value = self.kifuwarabes_colleague.board_value.eval()
             """盤面評価値算出"""
 
             if checked_value is None:
