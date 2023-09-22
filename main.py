@@ -1,5 +1,6 @@
 import cshogi
-import numpy as np
+# import numpy as np
+import random
 
 class Kifuwarabe():
     """きふわらべ"""
@@ -97,14 +98,52 @@ class Thought():
             return 'win'
             """勝利宣言"""
 
+        if not self.board.is_check():
+            """自玉に王手がかかっていない時"""
+
+            if (matemove:=self.board.mate_move_in_1ply()):
+                """あれば、一手詰めの指し手を取得"""
+
+                print('info score mate 1 pv {}'.format(cshogi.move_to_usi(matemove)))
+                return cshogi.move_to_usi(matemove)
+
         legal_moves = list(self.board.legal_moves)
         """合法手一覧"""
 
-        move = np.random.choice(legal_moves)
-        """乱択"""
+        move = self.choice(legal_moves)
+        """指し手を１つ選ぶ"""
 
         return cshogi.move_to_usi(move)
         """指し手の記法で返却"""
+
+    def choice(self, legal_moves):
+        # move = np.random.choice(legal_moves)
+        # """乱択"""
+
+        random.shuffle(legal_moves)
+
+        # 取る駒，成るフラグの部分をフィルタして最大値を取る
+
+        move = max(legal_moves, key=lambda x:x & 0b111100000100000000000000)
+        """
+                                                   ^^^^     ^
+                                                   1        2
+        1. 取られた駒の種類。0 以外なら何か取った
+        2. 1:成り 2:成りでない。 1 なら成った
+
+        最大値だから良いということはないが、同じ局面で、いつも同じ手を選ぶ働きがある
+
+        📖 [1file match（仮）の参考資料２（数行でレートを1300以上上げる）](https://bleu48.hatenablog.com/entry/2023/08/05/122818)
+        📖 [cshogi/src/move.hpp](https://github.com/TadaoYamaoka/cshogi/blob/master/src/move.hpp)
+
+        // xxxxxxxx xxxxxxxx xxxxxxxx x1111111  移動先
+        // xxxxxxxx xxxxxxxx xx111111 1xxxxxxx  移動元。駒打ちの際には、PieceType + SquareNum - 1
+        // xxxxxxxx xxxxxxxx x1xxxxxx xxxxxxxx  1 なら成り
+        // xxxxxxxx xxxx1111 xxxxxxxx xxxxxxxx  移動する駒の PieceType 駒打ちの際には使用しない。
+        // xxxxxxxx 1111xxxx xxxxxxxx xxxxxxxx  取られた駒の PieceType
+        """
+
+        return move
 
 if __name__ == '__main__':
     """コマンドから実行時"""
