@@ -757,11 +757,13 @@ class Thought():
             if checked_beta is None:
                 """別途、計算が必要なケース"""
 
-                current_alpha = -self.kifuwarabes_colleague.min_max.do_it(
+                (current_beta, _move_list) = self.kifuwarabes_colleague.min_max.do_it(
                     depth=2,
                     alpha=-beta,    # ベーター値は、相手から見ればアルファー値
                     beta=-alpha)    # アルファー値は、相手から見ればベーター値
                 """将来獲得できるであろう、最も良い、最低限の評価値"""
+
+                current_alpha = -current_beta
 
             else:
                 current_alpha = -checked_beta
@@ -836,6 +838,9 @@ class MinMax():
             β は、あなた。数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない
         """
 
+        if depth == 0:
+            best_move_list = []
+
         beta_cutoff = False
 
         for move in self.kifuwarabes_subordinate.board.legal_moves:
@@ -850,11 +855,13 @@ class MinMax():
                 """別途、計算が必要なケース"""
 
                 if depth > 1:
-                    current_alpha = -self.do_it(
+                    (current_beta, _move_list) = self.do_it(
                         depth=depth - 1,
                         alpha=-beta,    # ベーター値は、相手から見ればアルファー値
                         beta=-alpha)    # アルファー値は、相手から見ればベーター値
                     """将来獲得できるであろう、最低限の評価値"""
+
+                    current_alpha = -current_beta
 
                 else:
                     """末端局面評価値"""
@@ -910,6 +917,13 @@ class MinMax():
                 """いわゆるアルファー・アップデート。
                 自分が将来獲得できるであろう最低限の評価値が、増えた"""
 
+                if depth == 0:
+                    best_move_list = [move]
+
+            elif depth == 0 and current_alpha == alpha:
+                best_move_list.append(move)
+                """評価値が等しい指し手を追加"""
+
             if beta < current_alpha:
                 """ベーター・カット"""
                 beta_cutoff = True
@@ -921,7 +935,10 @@ class MinMax():
                 """これより先の兄弟は、選ばれることはないので打ち切る"""
                 break
 
-        return alpha
+        if depth == 0:
+            return (alpha, best_move_list)
+        else:
+            return (alpha, None)
         """自分が将来獲得できるであろう、もっとも良い、最低限の評価値"""
 
 if __name__ == '__main__':
