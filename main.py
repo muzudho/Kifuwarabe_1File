@@ -688,7 +688,7 @@ class Thought():
 
         # move = self.choice_random(list(self.kifuwarabes_subordinate.board.legal_moves))
         (current_beta, bestmove_list) = self.kifuwarabes_colleague.min_max.do_it(
-            depth=0,
+            depth=2,
             alpha = -9999999, # 数ある選択肢の中の、評価値の下限。この下限値は、ベータ値いっぱいまで上げたい"""
             beta = 9999999, # 数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない
             is_root = True
