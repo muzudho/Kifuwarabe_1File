@@ -8,11 +8,23 @@ class Kifuwarabe():
     def __init__(self):
         """初期化"""
 
-        self.board = cshogi.Board()
-        """将棋盤"""
+        self._subordinate = KifuwarabesSubordinate()
+        """きふわらべの部下"""
 
-        self.materials_value = MaterialsValue()
-        """駒の価値"""
+        self._thought = Thought(
+            kifuwarabes_subordinate=self.subordinate
+        )
+        """思考"""
+
+    @property
+    def subordinate(self):
+        """きふわらべの部下"""
+        return self._subordinate
+
+    @property
+    def thought(self):
+        """思考"""
+        return self._thought
 
     def usi_loop(self):
         """USIループ"""
@@ -53,77 +65,109 @@ class Kifuwarabe():
 
         if sfen == 'startpos':
             """平手初期局面に変更"""
-            self.board.reset()
+            self.subordinate.board.reset()
 
         elif sfen[:5] == 'sfen ':
             """指定局面に変更"""
-            self.board.set_sfen(sfen[5:])
+            self.subordinate.board.set_sfen(sfen[5:])
 
         for usi_move in usi_moves:
             """棋譜再生"""
-            self.board.push_usi(usi_move)
+            self.subordinate.board.push_usi(usi_move)
 
     def go(self):
         """思考開始～最善手返却"""
 
-        thoght = Thought(
-            board=self.board,
-            materials_value=self.materials_value
-        )
-        return thoght.do_it()
+        return self.thought.do_it()
+
+class KifuwarabesSubordinate():
+    """きふわらべの部下"""
+
+    def __init__(self):
+        self._board = cshogi.Board()
+        """盤"""
+
+        self._materials_value = MaterialsValue()
+        """駒の価値"""
+
+    @property
+    def board(self):
+        """盤"""
+        return self._board
+
+    @property
+    def materials_value(self):
+        """駒の価値"""
+        return self._materials_value
 
 class Thought():
     """思考"""
 
-    def __init__(self, board, materials_value):
+    def __init__(self, kifuwarabes_subordinate):
         """初期化
 
         Parameters
         ----------
         board
-            将棋盤
+            盤
+        materials_value
+            駒の価値
         """
 
-        self.board = board
-        """将棋盤"""
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
 
-        self.materials_value = materials_value
-        """駒の価値"""
+        self._min_max = MinMax(
+            board=self.kifuwarabes_subordinate.board,
+            materials_value=self.kifuwarabes_subordinate.materials_value
+        )
+        """ミニマックス戦略"""
+
+    @property
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
+
+    @property
+    def min_max(self):
+        """ミニマックス戦略"""
+        return self._min_max
 
     def do_it(self):
         """それをする"""
 
-        if self.board.is_game_over():
+        if self.kifuwarabes_subordinate.board.is_game_over():
             """投了局面時"""
 
             return 'resign'
             """投了"""
 
-        if self.board.is_nyugyoku():
+        if self.kifuwarabes_subordinate.board.is_nyugyoku():
             """入玉宣言局面時"""
 
             return 'win'
             """勝利宣言"""
 
-        if not self.board.is_check():
+        if not self.kifuwarabes_subordinate.board.is_check():
             """自玉に王手がかかっていない時"""
 
-            if (matemove:=self.board.mate_move_in_1ply()):
+            if (matemove:=self.kifuwarabes_subordinate.board.mate_move_in_1ply()):
                 """あれば、一手詰めの指し手を取得"""
 
                 print('info score mate 1 pv {}'.format(cshogi.move_to_usi(matemove)))
                 return cshogi.move_to_usi(matemove)
 
-        legal_moves = list(self.board.legal_moves)
+        legal_moves = list(self.kifuwarabes_subordinate.board.legal_moves)
         """合法手一覧"""
 
-        move = self.choice(legal_moves)
+        # move = self.choice_random(legal_moves)
+        move = self.choice_min_max(legal_moves)
         """指し手を１つ選ぶ"""
 
         return cshogi.move_to_usi(move)
         """指し手の記法で返却"""
 
-    def choice(self, legal_moves):
+    def choice_random(self, legal_moves):
         # move = np.random.choice(legal_moves)
         # """乱択"""
 
@@ -151,6 +195,44 @@ class Thought():
         """
 
         return move
+
+    def choice_min_max(self, legal_moves):
+        """ミニマックス戦略で指し手を選ぶ"""
+
+        max_value = -9999999
+        """将来獲得できるであろう、最もよい、最低限の評価値"""
+
+        for move in legal_moves:
+            self.kifuwarabes_subordinate.board.push(move)
+            """一手指す"""
+
+            checked_value = self.min_max.check_board()
+            """あれば、決まりきった盤面評価値"""
+
+            if checked_value is None:
+                value = -self.min_max.do_it(depth=2)
+                """将来獲得できるであろう、最も良い、最低限の評価値"""
+
+            else:
+                value = -checked_value
+
+            if value > max_value:
+                max_value = value
+                best_move_list = [move]
+                """いわゆる、アルファー・アップデート。
+                将来獲得できるであろう、最も良い、最低限の評価値が、上がった"""
+
+            elif value == max_value:
+                best_move_list.append(move)
+                """評価値が等しい指し手を追加"""
+
+            self.kifuwarabes_subordinate.board.pop()
+            """一手戻す"""
+
+            bestmove = random.choice(best_move_list)
+            """候補手の中からランダムに選ぶ"""
+
+        return bestmove
 
 class MaterialsValue():
     """駒の価値"""
@@ -200,6 +282,89 @@ class MaterialsValue():
         else:
             """後手は評価値の正負を反転"""
             return -eval_mat
+
+class MinMax():
+    """ミニマックス戦略"""
+
+    def __init__(self, board, materials_value):
+        self._board = board
+        """盤"""
+
+        self._materials_value = materials_value
+        """駒の価値"""
+
+    @property
+    def board(self):
+        """盤"""
+        return self._board
+
+    @property
+    def materials_value(self):
+        """駒の価値"""
+        return self._materials_value
+
+    def check_board(self):
+        """盤面の評価値"""
+        if self.board.is_game_over():
+            return -30000
+        if self.board.is_nyugyoku():
+            return 30000
+
+        draw = self.board.is_draw(16)
+        if draw == cshogi.REPETITION_DRAW:
+            return 0
+        if draw == cshogi.REPETITION_WIN:
+            return 30000
+        if draw == cshogi.REPETITION_LOSE:
+            return -30000
+        if draw == cshogi.REPETITION_SUPERIOR:
+            return 30000
+        if draw == cshogi.REPETITION_INFERIOR:
+            return -30000
+
+        """別途、計算が必要"""
+        return None
+
+    def do_it(self, depth):
+        """それをする
+
+        Parameters
+        ----------
+        depth
+            深さ
+        """
+
+        max_value = -9999999
+        for move in self.board.legal_moves:
+            self.board.push(move)
+            """一手指す"""
+
+            checked_value = self.check_board()
+            """盤面評価値算出"""
+
+            if checked_value is None:
+                """別途、計算が必要なケース"""
+                if depth > 1:
+                    value = -self.do_it(depth=depth - 1)
+                    """将来獲得できるであろう、最低限の評価値"""
+                else:
+                    value = -self.materials_value.eval(self.board)
+                    """駒割りを、最低限の評価値とする"""
+
+            else:
+                value = -checked_value
+                """盤面の決まりきった評価値"""
+
+            if value > max_value:
+                max_value = value
+                """いわゆるアルファー・アップデート。
+                自分が将来獲得できるであろう最低限の評価値が、増えた"""
+
+            self.board.pop()
+            """一手戻す"""
+
+        return max_value
+        """自分が将来獲得できるであろう、もっとも良い、最低限の評価値"""
 
 if __name__ == '__main__':
     """コマンドから実行時"""
