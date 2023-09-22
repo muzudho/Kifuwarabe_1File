@@ -23,11 +23,17 @@ gote_none=16 # 先手の駒に足すと、後手の駒になる
 class KifuwarabesColleague():
     """きふわらべの同僚"""
 
-    def __init__(self, kifuwarabe):
-        """初期化"""
+    def __init__(self, kifuwarabes_subordinate):
+        """初期化
+
+        Parameters
+        ----------
+        kifuwarabes_subordinate
+            きふわらべの部下
+        """
 
         self._sense_of_beauty = SenseOfBeauty(
-            kifuwarabe=kifuwarabe,
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
             kifuwarabes_colleague=self
         )
         """美意識"""
@@ -41,19 +47,14 @@ class Kifuwarabe():
     """きふわらべ"""
 
     def __init__(self):
-        """初期化
-
-        Parameters
-        ----------
-        kifuwarabes_colleague
-            きふわらべの同僚
-        """
-
-        self._kifuwarabes_colleague = KifuwarabesColleague(kifuwarabe=self)
-        """きふわらべの同僚"""
+        """初期化"""
 
         self._subordinate = KifuwarabesSubordinate()
         """きふわらべの部下"""
+
+        self._colleague = KifuwarabesColleague(
+            kifuwarabes_subordinate=self.subordinate)
+        """きふわらべの同僚"""
 
         self._thought = Thought(
             kifuwarabes_subordinate=self.subordinate
@@ -61,14 +62,14 @@ class Kifuwarabe():
         """思考"""
 
     @property
-    def kifuwarabes_colleague(self):
-        """きふわらべの同僚"""
-        return self._kifuwarabes_colleague
-
-    @property
     def subordinate(self):
         """きふわらべの部下"""
         return self._subordinate
+
+    @property
+    def colleague(self):
+        """きふわらべの同僚"""
+        return self._colleague
 
     @property
     def thought(self):
@@ -415,26 +416,27 @@ class MinMax():
 class SenseOfBeauty():
     """美意識"""
 
-    def __init__(self, kifuwarabe, kifuwarabes_colleague):
+    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
         """初期化
 
         Parameters
         ----------
-        kifuwarabe
-            きふわらべ
+        kifuwarabes_subordinate
+            きふわらべの部下
         kifuwarabes_colleague
             きふわらべの同僚
         """
 
-        self._kifuwarabe = kifuwarabe
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
 
         self._kifuwarabes_colleague = kifuwarabes_colleague
         """きふわらべの同僚"""
 
     @property
-    def kifuwarabe(self):
-        """きふわらべ"""
-        return self._kifuwarabe
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
 
     @property
     def kifuwarabes_colleague(self):
@@ -459,7 +461,7 @@ class SenseOfBeauty():
         sq_idx = 1 # square index
 
         rook_pos = []
-        for index, piece in enumerate(self.kifuwarabe.board.pieces):
+        for index, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
             if piece == sente_rook or piece == sente_rook + gote_none:
                 rook_pos.append((piece,index))
 
