@@ -11,6 +11,9 @@ class Kifuwarabe():
         self.board = cshogi.Board()
         """将棋盤"""
 
+        self.materials_value = MaterialsValue()
+        """駒の価値"""
+
     def usi_loop(self):
         """USIループ"""
 
@@ -64,14 +67,15 @@ class Kifuwarabe():
         """思考開始～最善手返却"""
 
         thoght = Thought(
-            board=self.board
+            board=self.board,
+            materials_value=self.materials_value
         )
         return thoght.do_it()
 
 class Thought():
     """思考"""
 
-    def __init__(self, board):
+    def __init__(self, board, materials_value):
         """初期化
 
         Parameters
@@ -82,6 +86,9 @@ class Thought():
 
         self.board = board
         """将棋盤"""
+
+        self.materials_value = materials_value
+        """駒の価値"""
 
     def do_it(self):
         """それをする"""
@@ -144,6 +151,55 @@ class Thought():
         """
 
         return move
+
+class MaterialsValue():
+    """駒の価値"""
+
+    def __init__(self):
+        self._hand = [90,315,405,495,540,855,990,]
+        """持ち駒。歩、香、桂、銀、金、角、飛"""
+
+        self._on_board = [
+            0,90,315,405,495,855,990,540,0,
+            # None、▲歩、▲香、▲桂、▲銀、▲角、▲飛、▲金、▲玉、
+            540,540,540,540,945,1395,0,
+            # ▲と、▲杏、▲圭、▲全、▲馬、▲竜、未使用、
+            0,-90,-315,-405,-495,-855,-990,-540,0,
+            # 未使用、▽歩、▽香、▽桂、▽銀、▽角、▽飛、▽金、▽玉、
+            -540,-540,-540,-540,-945,-1395,0,0,
+            # ▽と、▽杏、▽圭、▽全、▽馬、▽竜、未使用、未使用、
+            ]
+        """盤上の駒の価値
+        📖 [cshogiのサンプルプログラム(MinMax探索)](https://tadaoyamaoka.hatenablog.com/entry/2023/08/13/223655)
+        """
+
+    @property
+    def hand(self):
+        """持ち駒の価値"""
+        return self._hand
+
+    @property
+    def on_board(self):
+        """盤上の駒の価値"""
+        return self._on_board
+
+    def eval(self, board):
+        """評価"""
+
+        eval_mat = sum(self.on_board[p] for p in board.pieces if p > 0 )
+        """盤上の駒の価値"""
+
+        pieces_in_hand = board.pieces_in_hand
+        """持ち駒"""
+
+        eval_mat += sum(self.hand[p] * (pieces_in_hand[0][p] - pieces_in_hand[1][p]) for p in range(7) )
+        """持ち駒の価値"""
+
+        if board.turn == cshogi.BLACK:
+            return eval_mat
+        else:
+            """後手は評価値の正負を反転"""
+            return -eval_mat
 
 if __name__ == '__main__':
     """コマンドから実行時"""
