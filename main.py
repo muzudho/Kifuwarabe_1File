@@ -95,6 +95,75 @@ def piece_to_string(pc):
     else:
         return f'{pc}' # エラー
 
+def string_to_piece(s):
+    """逆関数"""
+    if s == "　　": # 空升
+        return 0
+    elif s == "＿歩":
+        return 1
+    elif s == "＿香":
+        return 2
+    elif s == "＿桂":
+        return 3
+    elif s == "＿銀":
+        return 4
+    elif s == "＿角":
+        return 5
+    elif s == "＿飛":
+        return 6
+    elif s == "＿金":
+        return 7
+    elif s == "＿玉":
+        return 8
+    elif s == "＿と":
+        return 9
+    elif s == "＿杏":
+        return 10
+    elif s == "＿圭":
+        return 11
+    elif s == "＿全":
+        return 12
+    elif s == "＿馬":
+        return 13
+    elif s == "＿竜":
+        return 14
+    elif s == "１５": # 未使用
+        return 15
+    elif s == "１６": # 未使用
+        return 16
+    elif s == "ｖ歩":
+        return 17
+    elif s == "ｖ香":
+        return 18
+    elif s == "ｖ桂":
+        return 19
+    elif s == "ｖ銀":
+        return 20
+    elif s == "ｖ角":
+        return 21
+    elif s == "ｖ飛":
+        return 22
+    elif s == "ｖ金":
+        return 23
+    elif s == "ｖ玉":
+        return 24
+    elif s == "ｖと":
+        return 25
+    elif s == "ｖ杏":
+        return 26
+    elif s == "ｖ圭":
+        return 27
+    elif s == "ｖ全":
+        return 28
+    elif s == "ｖ馬":
+        return 29
+    elif s == "ｖ竜":
+        return 30
+    elif s == "３１": # 未使用
+        return 31
+    else:
+        return f'{s}' # エラー
+
 sente_none=0 # None 例えば空升
 sente_pawn=1 # ▲歩
 sente_lance=2 # ▲香
@@ -246,11 +315,11 @@ class Kifuwarabe():
                 elif ranging_rook == 4:
                     print(f'beauty 相振り飛車')
 
-                sq28 = self.subordinate.board.pieces[28]
-                print(f'２八の駒：{piece_to_string(sq28)}')
+                piece_at28 = self.subordinate.board.pieces[jsa_to_sq(28)]
+                print(f'２八の駒：{piece_to_string(piece_at28)}')
 
-                sq82 = self.subordinate.board.pieces[82]
-                print(f'８二の駒：{piece_to_string(sq82)}')
+                piece_at82 = self.subordinate.board.pieces[jsa_to_sq(82)]
+                print(f'８二の駒：{piece_to_string(piece_at82)}')
 
 
     def position(self, sfen, usi_moves):
@@ -500,9 +569,9 @@ class SenseOfBeauty():
         sq_idx = 1 # square index
 
         rook_pos = []
-        for index, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
+        for sq, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
             if piece == sente_rook or piece == sente_rook + gote_none:
-                rook_pos.append((piece,index))
+                rook_pos.append((piece,sq))
 
         if len(rook_pos) == 2:
             if rook_pos[sente_idx][piece_idx] == rook_pos[gote_idx][piece_idx]:
@@ -515,13 +584,13 @@ class SenseOfBeauty():
                 rook_pos[gote_idx] = rook_pos[sente_idx]
                 rook_pos[sente_idx] = temp
 
-            if rook_pos[sente_idx][sq_idx] == 28:
-                if rook_pos[gote_idx][sq_idx] == 82:
+            if rook_pos[sente_idx][sq_idx] == jsa_to_sq(28):
+                if rook_pos[gote_idx][sq_idx] == jsa_to_sq(82):
                     return 1 # 相居飛車
                 else:
                     return 3 # 後手振り飛車
             else:
-                if rook_pos[gote_idx][sq_idx] == 82:
+                if rook_pos[gote_idx][sq_idx] == jsa_to_sq(82):
                     return 2 # 先手振り飛車
                 else:
                     return 4 # 相振り飛車
