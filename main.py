@@ -2,73 +2,78 @@ import cshogi
 import numpy as np
 
 
-
-board = cshogi.Board()
-
+def main():
 
 
-def position(sfen, usi_moves):
-
-    if sfen == 'startpos':
-
-        board.reset()
-
-    elif sfen[:5] == 'sfen ':
-
-        board.set_sfen(sfen[5:])
-
-    for usi_move in usi_moves:
-
-        board.push_usi(usi_move)
+    board = cshogi.Board()
 
 
 
-def go():
+    def position(sfen, usi_moves):
 
-    if board.is_game_over():
+        if sfen == 'startpos':
 
-        return 'resign'
+            board.reset()
 
-    if board.is_nyugyoku():
+        elif sfen[:5] == 'sfen ':
 
-        return 'win'
+            board.set_sfen(sfen[5:])
 
-    legal_moves = list(board.legal_moves)
+        for usi_move in usi_moves:
 
-    move = np.random.choice(legal_moves)
-
-    return cshogi.move_to_usi(move)
+            board.push_usi(usi_move)
 
 
 
-while True:
+    def go():
 
-    cmd = input().split(' ', 1)
+        if board.is_game_over():
 
-    if cmd[0] == 'usi':
+            return 'resign'
 
-        print('id name this is a sample')
+        if board.is_nyugyoku():
 
-        print('usiok', flush=True)
+            return 'win'
 
-    elif cmd[0] == 'isready':
+        legal_moves = list(board.legal_moves)
 
-        print('readyok', flush=True)
+        move = np.random.choice(legal_moves)
 
-    elif cmd[0] == 'position':
+        return cshogi.move_to_usi(move)
 
-        pos = cmd[1].split('moves')
 
-        position(pos[0].strip(), pos[1].split() if len(pos) > 1 else [])
 
-    elif cmd[0] == 'go':
+    while True:
 
-        print('bestmove ' + go(), flush=True)
+        cmd = input().split(' ', 1)
 
-    elif cmd[0] == 'stop':
+        if cmd[0] == 'usi':
 
-        print('bestmove resign' , flush=True)
+            print('id name Kifuwarabe1File')
 
-    elif cmd[0] == 'quit':
+            print('usiok', flush=True)
 
-        break
+        elif cmd[0] == 'isready':
+
+            print('readyok', flush=True)
+
+        elif cmd[0] == 'position':
+
+            pos = cmd[1].split('moves')
+
+            position(pos[0].strip(), pos[1].split() if len(pos) > 1 else [])
+
+        elif cmd[0] == 'go':
+
+            print('bestmove ' + go(), flush=True)
+
+        elif cmd[0] == 'stop':
+
+            print('bestmove resign' , flush=True)
+
+        elif cmd[0] == 'quit':
+
+            break
+
+if __name__ == '__main__':
+    main()
