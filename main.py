@@ -286,7 +286,7 @@ class Kifuwarabe():
             elif cmd[0] == 'go':
                 """思考開始～最善手返却"""
 
-                (bestmove, alpha) = self.go()
+                (bestmove, alpha) = self.colleague.thought.do_it()
 
                 print(f'info depth 1 seldepth 1 time 1 nodes 1 score cp {alpha} string x')
 
@@ -344,11 +344,6 @@ class Kifuwarabe():
         for usi_move in usi_moves:
             """棋譜再生"""
             self.subordinate.board.push_usi(usi_move)
-
-    def go(self):
-        """思考開始～最善手返却"""
-
-        return self.colleague.thought.do_it()
 
 class KifuwarabesSubordinate():
     """きふわらべの部下"""
@@ -673,13 +668,13 @@ class Thought():
         if self.kifuwarabes_subordinate.board.is_game_over():
             """投了局面時"""
 
-            return 'resign'
+            return ('resign', 0)
             """投了"""
 
         if self.kifuwarabes_subordinate.board.is_nyugyoku():
             """入玉宣言局面時"""
 
-            return 'win'
+            return ('win', 0)
             """勝利宣言"""
 
         if not self.kifuwarabes_subordinate.board.is_check():
@@ -689,7 +684,7 @@ class Thought():
                 """あれば、一手詰めの指し手を取得"""
 
                 print('info score mate 1 pv {}'.format(cshogi.move_to_usi(matemove)))
-                return cshogi.move_to_usi(matemove)
+                return (cshogi.move_to_usi(matemove), 0)
 
         # move = self.choice_random(list(self.kifuwarabes_subordinate.board.legal_moves))
         (current_beta, bestmove_list) = self.kifuwarabes_colleague.min_max.do_it(
