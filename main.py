@@ -2,6 +2,9 @@ import cshogi
 # import numpy as np
 import random
 
+turn_black = 0 # 先手
+turn_white = 1 # 後手
+
 def piece_to_string(pc):
     """
     ピース（Piece, pc；駒番号）
@@ -303,6 +306,9 @@ class Kifuwarabe():
 
             elif cmd[0] == 'beauty':
                 """独自拡張。美意識を返す"""
+
+                print(f'ターン：{self.subordinate.board.turn}')
+
                 ranging_rook = self.colleague.sense_of_beauty.check_ranging_rook()
                 if ranging_rook == 0:
                     print(f'beauty 何でもない')
@@ -693,43 +699,70 @@ class Thought():
     def choice_min_max(self, legal_moves):
         """ミニマックス戦略で指し手を選ぶ"""
 
-        max_value = -9999999
-        """将来獲得できるであろう、最もよい、最低限の評価値"""
+        # α は、わたし。自分から見た評価値の下限値
+        # β は、あなた。相手はベーター値より大きい評価値の選択肢は、残さない
+
+        max_alpha = -9999999
+        """数ある選択肢の中の、評価値の下限。この下限値は、ベータ値いっぱいまで上げたい"""
+
+        min_beta = 9999999
+        """数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない"""
+
+        beta_cutoff = False
+
+        best_move_list = []
 
         for move in legal_moves:
+
             self.kifuwarabes_subordinate.board.push(move)
             """一手指す"""
 
-            checked_value = self.kifuwarabes_colleague.board_value.eval()
+            checked_beta = self.kifuwarabes_colleague.board_value.eval()
             """あれば、決まりきった盤面評価値"""
 
-            if checked_value is None:
-                value = -self.kifuwarabes_colleague.min_max.do_it(depth=2)
+            if checked_beta is None:
+                """別途、計算が必要なケース"""
+
+                alpha = -self.kifuwarabes_colleague.min_max.do_it(
+                    depth=2,
+                    max_alpha=-min_beta,    # ベーター値は、相手から見ればアルファー値
+                    min_beta=-max_alpha)    # アルファー値は、相手から見ればベーター値
                 """将来獲得できるであろう、最も良い、最低限の評価値"""
 
             else:
-                value = -checked_value
+                alpha = -checked_beta
+                """盤面の決まりきった評価値"""
 
-            if value > max_value:
-                max_value = value
+            if min_beta < alpha:
+                """ベーター・カット"""
+                beta_cutoff = True
+
+            elif max_alpha < alpha:
+                max_alpha = alpha
                 best_move_list = [move]
                 """いわゆる、アルファー・アップデート。
                 将来獲得できるであろう、最も良い、最低限の評価値が、上がった"""
 
-            elif value == max_value:
+            elif alpha == max_alpha:
                 best_move_list.append(move)
                 """評価値が等しい指し手を追加"""
 
             self.kifuwarabes_subordinate.board.pop()
             """一手戻す"""
 
-            bestmove = random.choice(best_move_list)
-            """候補手の中からランダムに選ぶ"""
+            if beta_cutoff:
+                """これより先の兄弟は、選ばれることはないので打ち切る"""
+                break
 
-        return bestmove
+        return random.choice(best_move_list)
+        """候補手の中からランダムに選ぶ"""
 
 class MinMax():
-    """ミニマックス戦略"""
+    """ミニマックス戦略
+    実装はネガマックス
+
+    📖 [アルファベータ探索（alpha-beta pruning）やろうぜ（＾～＾）？](https://crieit.net/drafts/60e6206eaf964)
+    """
 
     def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
         """初期化
@@ -756,64 +789,99 @@ class MinMax():
         """きふわらべの同僚"""
         return self._kifuwarabes_colleague
 
-    def do_it(self, depth):
+    def do_it(self, depth, max_alpha, min_beta):
         """それをする
 
         Parameters
         ----------
         depth
             深さ
+        max_alpha
+            α は、わたし。数ある選択肢の中の、評価値の下限。この下限値は、ベータ値いっぱいまで上げたい
+        min_beta
+            β は、あなた。数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない
         """
 
-        max_value = -9999999
+        beta_cutoff = False
+
         for move in self.kifuwarabes_subordinate.board.legal_moves:
+
             self.kifuwarabes_subordinate.board.push(move)
             """一手指す"""
 
-            checked_value = self.kifuwarabes_colleague.board_value.eval()
-            """盤面評価値算出"""
+            checked_beta = self.kifuwarabes_colleague.board_value.eval()
+            """あれば、決まりきった盤面評価値"""
 
-            if checked_value is None:
+            if checked_beta is None:
                 """別途、計算が必要なケース"""
 
                 if depth > 1:
-                    value = -self.do_it(depth=depth - 1)
+                    alpha = -self.do_it(
+                        depth=depth - 1,
+                        max_alpha=-min_beta,    # ベーター値は、相手から見ればアルファー値
+                        min_beta=-max_alpha)    # アルファー値は、相手から見ればベーター値
                     """将来獲得できるであろう、最低限の評価値"""
+
                 else:
                     """末端局面評価値"""
 
-                    value = -self.kifuwarabes_subordinate.materials_value.eval(self.kifuwarabes_subordinate.board)
+                    alpha = -self.kifuwarabes_subordinate.materials_value.eval(
+                        board=self.kifuwarabes_subordinate.board)
                     """駒割りを、最低限の評価値とする"""
 
                     ranging_rook = self.kifuwarabes_colleague.sense_of_beauty.check_ranging_rook()
-                    if ranging_rook == 0:
+
+                    if ranging_rook == 2:
+                        # 先手振り飛車
+                        if self.kifuwarabes_subordinate.board.turn == turn_black:
+                            # 自分が振り飛車やってる
+                            alpha += 1000
+                        else:
+                            # 相手が振り飛車やってる
+                            alpha -= 1000
+
+                    elif ranging_rook == 3:
+                        # 後手振り飛車
+                        if self.kifuwarabes_subordinate.board.turn == turn_white:
+                            # 自分が振り飛車やってる
+                            alpha += 1000
+                        else:
+                            # 相手が振り飛車やってる
+                            alpha -= 1000
+
+                    elif ranging_rook == 1:
+                        # 相居飛車は、やりたいわけではない
+                        pass
+
+                    elif ranging_rook == 4:
+                        # 相振り飛車は、やりたいわけではない
+                        pass
+
+                    else:
                         # 何でもない
                         pass
 
-                    elif ranging_rook == 1:
-                        # 相居飛車は避けたい。 -8000点したれ
-                        value -= 8000
-
-                    elif ranging_rook == 4:
-                        # 相振り飛車は、やりたいわけではない。 -2000点したれ
-                        value -= 2000
-
-                    else:
-                        # 対抗系なら、居飛車側持つかもしれないけど、いいや
-                        value += 5000
             else:
-                value = -checked_value
+                alpha = -checked_beta
                 """盤面の決まりきった評価値"""
 
-            if value > max_value:
-                max_value = value
+            if min_beta < alpha:
+                """ベーター・カット"""
+                beta_cutoff = True
+
+            elif alpha > max_alpha:
+                max_alpha = alpha
                 """いわゆるアルファー・アップデート。
                 自分が将来獲得できるであろう最低限の評価値が、増えた"""
 
             self.kifuwarabes_subordinate.board.pop()
             """一手戻す"""
 
-        return max_value
+            if beta_cutoff:
+                """これより先の兄弟は、選ばれることはないので打ち切る"""
+                break
+
+        return max_alpha
         """自分が将来獲得できるであろう、もっとも良い、最低限の評価値"""
 
 if __name__ == '__main__':
