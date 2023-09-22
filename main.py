@@ -2,9 +2,6 @@ import cshogi
 # import numpy as np
 import random
 
-turn_black = 0 # 先手
-turn_white = 1 # 後手
-
 def piece_to_string(pc):
     """
     ピース（Piece, pc；駒番号）
@@ -291,7 +288,7 @@ class Kifuwarabe():
 
                 (bestmove, max_alpha) = self.go()
 
-                print(f'info depth 1 seldepth 1 time 1 nodes 1 score cp {max_alpha} string')
+                print(f'info depth 1 seldepth 1 time 1 nodes 1 score cp {max_alpha} string x')
 
                 print(f'bestmove {bestmove}', flush=True)
 
@@ -432,21 +429,38 @@ class KifuwarabesColleague():
         return self._min_max
 
 class MaterialsValue():
-    """駒の価値"""
+    """先手から見た駒の価値"""
 
     def __init__(self):
-        self._hand = [90,315,405,495,540,855,990,]
+        # 利き１個 100点換算
+        none_value = 0
+        pawn_value = 100
+        lance_value = 800 // 2
+        knight_value = 200
+        silver_value = 500
+        gold_value = 600
+        bishop_value = 1600 // 2
+        rook_value = 1600 // 2
+        king_value = 0
+        promoted_pawn = 600
+        promoted_lance = 600
+        promoted_knight = 600
+        promoted_silver = 600
+        horse = 2000 // 2
+        dragon = 2000 // 2
+
+        self._hand = [pawn_value, lance_value, knight_value, silver_value, gold_value, bishop_value, rook_value,]
         """持ち駒。歩、香、桂、銀、金、角、飛"""
 
         self._on_board = [
-            0,90,315,405,495,855,990,540,0,
+            none_value, pawn_value, lance_value, knight_value, silver_value, bishop_value, rook_value, gold_value, king_value,
             # None、▲歩、▲香、▲桂、▲銀、▲角、▲飛、▲金、▲玉、
-            540,540,540,540,945,1395,0,
+            promoted_pawn, promoted_lance, promoted_knight, promoted_silver, horse, dragon, none_value,
             # ▲と、▲杏、▲圭、▲全、▲馬、▲竜、未使用、
-            0,-90,-315,-405,-495,-855,-990,-540,0,
+            -none_value, -pawn_value, -lance_value, -knight_value, -silver_value, -bishop_value, -rook_value, -gold_value, -king_value,
             # 未使用、▽歩、▽香、▽桂、▽銀、▽角、▽飛、▽金、▽玉、
-            -540,-540,-540,-540,-945,-1395,0,0,
-            # ▽と、▽杏、▽圭、▽全、▽馬、▽竜、未使用、未使用、
+            -promoted_pawn, -promoted_lance, -promoted_knight, -promoted_silver, -horse, -dragon, -none_value,
+            # ▽と、▽杏、▽圭、▽全、▽馬、▽竜、未使用
             ]
         """盤上の駒の価値
         📖 [cshogiのサンプルプログラム(MinMax探索)](https://tadaoyamaoka.hatenablog.com/entry/2023/08/13/223655)
@@ -465,20 +479,21 @@ class MaterialsValue():
     def eval(self, board):
         """評価"""
 
-        eval_mat = sum(self.on_board[p] for p in board.pieces if p > 0 )
+        value = sum(self.on_board[p] for p in board.pieces if p > 0 )
         """盤上の駒の価値"""
 
         pieces_in_hand = board.pieces_in_hand
         """持ち駒"""
 
-        eval_mat += sum(self.hand[p] * (pieces_in_hand[0][p] - pieces_in_hand[1][p]) for p in range(7) )
+        value += sum(self.hand[p] * (pieces_in_hand[cshogi.BLACK][p] - pieces_in_hand[cshogi.WHITE][p]) for p in range(7) )
         """持ち駒の価値"""
 
         if board.turn == cshogi.BLACK:
-            return eval_mat
+            return value
+
         else:
             """後手は評価値の正負を反転"""
-            return -eval_mat
+            return -value
 
 class BoardValue():
     """盤の決まりきった価値"""
@@ -830,15 +845,20 @@ class MinMax():
                 else:
                     """末端局面評価値"""
 
-                    alpha = -self.kifuwarabes_subordinate.materials_value.eval(
+                    # 先手から見た駒得
+                    sente_material = self.kifuwarabes_subordinate.materials_value.eval(
                         board=self.kifuwarabes_subordinate.board)
-                    """駒割りを、最低限の評価値とする"""
+
+                    if self.kifuwarabes_subordinate.board.turn == cshogi.BLACK:
+                        alpha = sente_material
+                    else:
+                        alpha = -sente_material
 
                     ranging_rook = self.kifuwarabes_colleague.sense_of_beauty.check_ranging_rook()
 
                     if ranging_rook == 2:
                         # 先手振り飛車
-                        if self.kifuwarabes_subordinate.board.turn == turn_black:
+                        if self.kifuwarabes_subordinate.board.turn == cshogi.BLACK:
                             # 自分が振り飛車やってる
                             alpha += 1000
                         else:
@@ -847,7 +867,7 @@ class MinMax():
 
                     elif ranging_rook == 3:
                         # 後手振り飛車
-                        if self.kifuwarabes_subordinate.board.turn == turn_white:
+                        if self.kifuwarabes_subordinate.board.turn == cshogi.WHITE:
                             # 自分が振り飛車やってる
                             alpha += 1000
                         else:
