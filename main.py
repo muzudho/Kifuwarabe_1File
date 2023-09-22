@@ -38,10 +38,21 @@ class KifuwarabesColleague():
         )
         """美意識"""
 
+        self._thought = Thought(
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
+            kifuwarabes_colleague=self
+        )
+        """思考"""
+
     @property
     def sense_of_beauty(self):
         """美意識"""
         return self._sense_of_beauty
+
+    @property
+    def thought(self):
+        """思考"""
+        return self._thought
 
 class Kifuwarabe():
     """きふわらべ"""
@@ -56,11 +67,6 @@ class Kifuwarabe():
             kifuwarabes_subordinate=self.subordinate)
         """きふわらべの同僚"""
 
-        self._thought = Thought(
-            kifuwarabes_subordinate=self.subordinate
-        )
-        """思考"""
-
     @property
     def subordinate(self):
         """きふわらべの部下"""
@@ -70,11 +76,6 @@ class Kifuwarabe():
     def colleague(self):
         """きふわらべの同僚"""
         return self._colleague
-
-    @property
-    def thought(self):
-        """思考"""
-        return self._thought
 
     def usi_loop(self):
         """USIループ"""
@@ -128,7 +129,7 @@ class Kifuwarabe():
     def go(self):
         """思考開始～最善手返却"""
 
-        return self.thought.do_it()
+        return self.colleague.thought.do_it()
 
 class KifuwarabesSubordinate():
     """きふわらべの部下"""
@@ -153,17 +154,22 @@ class KifuwarabesSubordinate():
 class Thought():
     """思考"""
 
-    def __init__(self, kifuwarabes_subordinate):
+    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
         """初期化
 
         Parameters
         ----------
         kifuwarabes_subordinate
             きふわらべの部下
+        kifuwarabes_colleague
+            きふわらべの同僚
         """
 
         self._kifuwarabes_subordinate = kifuwarabes_subordinate
         """きふわらべの部下"""
+
+        self._kifuwarabes_colleague = kifuwarabes_colleague
+        """きふわらべの同僚"""
 
         self._min_max = MinMax(
             kifuwarabes_subordinate=self.kifuwarabes_subordinate
@@ -174,6 +180,11 @@ class Thought():
     def kifuwarabes_subordinate(self):
         """きふわらべの部下"""
         return self._kifuwarabes_subordinate
+
+    @property
+    def kifuwarabes_colleague(self):
+        """きふわらべの同僚"""
+        return self._kifuwarabes_colleague
 
     @property
     def min_max(self):
