@@ -62,6 +62,29 @@ class Kifuwarabe():
     def go(self):
         """思考開始～最善手返却"""
 
+        thoght = Thought(
+            board=self.board
+        )
+        return thoght.do_it()
+
+class Thought():
+    """思考"""
+
+    def __init__(self, board):
+        """初期化
+
+        Parameters
+        ----------
+        board
+            将棋盤
+        """
+
+        self.board = board
+        """将棋盤"""
+
+    def do_it(self):
+        """それをする"""
+
         if self.board.is_game_over():
             """投了局面時"""
 
