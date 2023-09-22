@@ -2,6 +2,24 @@ import cshogi
 # import numpy as np
 import random
 
+sente_none=0 # None
+sente_pawn=1 # ▲歩
+sente_lance=2 # ▲香
+sente_knight=3 # ▲桂
+sente_silver=4 # ▲銀
+sente_bishop=5 # ▲角
+sente_rook=6 # ▲飛
+sente_gold=7 # ▲金
+sente_king=8 # ▲玉
+sente_promoted_pawn=9 # ▲と
+sente_promoted_lance=10 # ▲杏
+sente_promoted_knight=11 # ▲圭
+sente_promoted_silver=12 # ▲全
+sente_horse=13 # ▲馬
+sente_dragon=14 # ▲竜
+sente_nouse=15 # 未使用
+gote_none=16 # 先手の駒に足すと、後手の駒になる
+
 class Kifuwarabe():
     """きふわらべ"""
 
@@ -15,6 +33,11 @@ class Kifuwarabe():
             kifuwarabes_subordinate=self.subordinate
         )
         """思考"""
+
+        self._sense_of_beauty = SenseOfBeauty(
+            kifuwarabes_subordinate=self.subordinate
+        )
+        """美意識"""
 
     @property
     def subordinate(self):
@@ -362,6 +385,72 @@ class MinMax():
 
         return max_value
         """自分が将来獲得できるであろう、もっとも良い、最低限の評価値"""
+
+class SenseOfBeauty():
+    """美意識"""
+
+    def __init__(self, kifuwarabes_subordinate):
+        """初期化
+
+        Parameters
+        ----------
+        kifuwarabes_subordinate
+            きふわらべの部下
+        """
+
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
+
+    @property
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
+
+    def check_ranging_rook(board):
+        """振り飛車かどうか調べる
+        0: 何でもない
+        1: 相居飛車
+        2: 先手振り飛車、後手居飛車
+        3: 先手居飛車、後手振り飛車
+        4: 相振り飛車
+        """
+
+        # 局面には２つの飛車がある。
+        # 盤上に自分の飛車、相手の飛車があるときのみ発動する
+
+        sente_idx = 0
+        gote_idx = 1
+        piece_idx = 0 # piece index
+        sq_idx = 1 # square index
+
+        rook_pos = []
+        for index, piece in enumerate(board.pieces):
+            if piece == sente_rook or piece == sente_rook + gote_none:
+                rook_pos.append((piece,index))
+
+        if len(rook_pos) == 2:
+            if rook_pos[sente_idx][piece_idx] == rook_pos[gote_idx][piece_idx]:
+                """先手、後手が分かれていなければ、対象外"""
+                pass
+
+            # 先手、後手の順にする
+            if rook_pos[gote_idx][piece_idx] == sente_rook and rook_pos[sente_idx][piece_idx] == sente_rook + gote_none:
+                temp = rook_pos[gote_idx]
+                rook_pos[gote_idx] = rook_pos[sente_idx]
+                rook_pos[sente_idx] = temp
+
+            if rook_pos[sente_idx][sq_idx] == 28:
+                if rook_pos[gote_idx][sq_idx] == 82:
+                    return 1 # 相居飛車
+                else:
+                    return 3 # 後手振り飛車
+            else:
+                if rook_pos[gote_idx][sq_idx] == 82:
+                    return 2 # 先手振り飛車
+                else:
+                    return 4 # 相振り飛車
+
+        return 0 # 何でもない
 
 if __name__ == '__main__':
     """コマンドから実行時"""
