@@ -108,18 +108,15 @@ class Thought():
 
         Parameters
         ----------
-        board
-            盤
-        materials_value
-            駒の価値
+        kifuwarabes_subordinate
+            きふわらべの部下
         """
 
         self._kifuwarabes_subordinate = kifuwarabes_subordinate
         """きふわらべの部下"""
 
         self._min_max = MinMax(
-            board=self.kifuwarabes_subordinate.board,
-            materials_value=self.kifuwarabes_subordinate.materials_value
+            kifuwarabes_subordinate=self.kifuwarabes_subordinate
         )
         """ミニマックス戦略"""
 
@@ -286,31 +283,31 @@ class MaterialsValue():
 class MinMax():
     """ミニマックス戦略"""
 
-    def __init__(self, board, materials_value):
-        self._board = board
-        """盤"""
+    def __init__(self, kifuwarabes_subordinate):
+        """初期化
 
-        self._materials_value = materials_value
-        """駒の価値"""
+        Parameters
+        ----------
+        kifuwarabes_subordinate
+            きふわらべの部下
+        """
+
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
 
     @property
-    def board(self):
-        """盤"""
-        return self._board
-
-    @property
-    def materials_value(self):
-        """駒の価値"""
-        return self._materials_value
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
 
     def check_board(self):
         """盤面の評価値"""
-        if self.board.is_game_over():
+        if self.kifuwarabes_subordinate.board.is_game_over():
             return -30000
-        if self.board.is_nyugyoku():
+        if self.kifuwarabes_subordinate.board.is_nyugyoku():
             return 30000
 
-        draw = self.board.is_draw(16)
+        draw = self.kifuwarabes_subordinate.board.is_draw(16)
         if draw == cshogi.REPETITION_DRAW:
             return 0
         if draw == cshogi.REPETITION_WIN:
@@ -335,8 +332,8 @@ class MinMax():
         """
 
         max_value = -9999999
-        for move in self.board.legal_moves:
-            self.board.push(move)
+        for move in self.kifuwarabes_subordinate.board.legal_moves:
+            self.kifuwarabes_subordinate.board.push(move)
             """一手指す"""
 
             checked_value = self.check_board()
@@ -348,7 +345,7 @@ class MinMax():
                     value = -self.do_it(depth=depth - 1)
                     """将来獲得できるであろう、最低限の評価値"""
                 else:
-                    value = -self.materials_value.eval(self.board)
+                    value = -self.kifuwarabes_subordinate.materials_value.eval(self.kifuwarabes_subordinate.board)
                     """駒割りを、最低限の評価値とする"""
 
             else:
@@ -360,7 +357,7 @@ class MinMax():
                 """いわゆるアルファー・アップデート。
                 自分が将来獲得できるであろう最低限の評価値が、増えた"""
 
-            self.board.pop()
+            self.kifuwarabes_subordinate.board.pop()
             """一手戻す"""
 
         return max_value
