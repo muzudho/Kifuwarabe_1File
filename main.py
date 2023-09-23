@@ -426,16 +426,24 @@ class KifuwarabesColleague():
         """探索アルゴリズム　アルファーベーター刈り"""
         return self._alpha_beta_pruning
 
-    def get_static_exchange_evaluation(self):
+    def get_static_exchange_evaluation(self, move):
         """静的駒交換値"""
 
-        # TODO 最後に差した駒の移動先升番号。この升を dst_sq、その駒を dst_pc とでも表記するとする
+        # TODO 最後に差した駒の移動先升番号。この升を dst_sq、その駒の種類を dst_pt とでも表記するとする
+        dst_sq = MoveHelper.destination(move)
+        dst_pt = MoveHelper.piece_type(move)
 
         # TODO destination に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
+        attacker_list = []
+        for piece in self.kifuwarabes_subordinate.board.piece:
+            # TODO その駒について、利いている升番号のリスト
+            control_list = []
+            if dst_sq in control_list:
+                attacker_list.append(piece)
 
         # TODO 味方の駒を入れる friend_queue、 相手の駒を入れる opponent_queue を作成
         # TODO attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
-        # TODO dst_pc を opponent_queue へ入れる
+        # TODO dst_pt を opponent_queue へ入れる
         # TODO attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
 
         # TODO opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
@@ -444,7 +452,7 @@ class KifuwarabesColleague():
 
         return 0
 
-    def on_eval_on_leaf(self):
+    def on_eval_on_leaf(self, move):
         """末端局面での評価値計算"""
 
         # 手番から見た駒割評価
@@ -452,7 +460,7 @@ class KifuwarabesColleague():
             board=self.kifuwarabes_subordinate.board)
 
         # TODO 駒の取り合いを解消したい。Static Exchange Evaluation
-        current_beta += self.get_static_exchange_evaluation()
+        current_beta += self.get_static_exchange_evaluation(move)
 
         current_alpha = -current_beta
 
@@ -883,7 +891,7 @@ class AlphaBetaPruning():
 
                     # どんな手を指したか
 
-                    current_beta = self.on_eval_on_leaf()
+                    current_beta = self.on_eval_on_leaf(move)
                     current_alpha = -current_beta
 
             else:
