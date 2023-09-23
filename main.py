@@ -513,6 +513,11 @@ class KifuwarabesColleague():
         return self._board_value
 
     @property
+    def control(self):
+        """利き"""
+        return self._control
+
+    @property
     def sense_of_beauty(self):
         """美意識"""
         return self._sense_of_beauty
@@ -534,15 +539,20 @@ class KifuwarabesColleague():
         dst_sq = MoveHelper.destination(move)
         dst_pt = MoveHelper.piece_type(move)
 
-        # TODO destination に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
+        # dst_sq に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
         attacker_list = []
         for piece in self.kifuwarabes_subordinate.board.pieces:
-            # TODO その駒について、利いている升番号のリスト
-            control_list = []
+
+            # その駒について、利いている升番号のリスト
+            control_list = self.control.list_by(
+                origin_sq = dst_sq,
+                piece = piece)
+
             if dst_sq in control_list:
                 attacker_list.append(piece)
 
         # TODO 味方の駒を入れる friend_queue、 相手の駒を入れる opponent_queue を作成
+        
         # TODO attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
         # TODO dst_pt を opponent_queue へ入れる
         # TODO attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
@@ -998,9 +1008,30 @@ class Control():
         """配列"""
         return self._relative_sq_arrays
 
-    def control_list_by(self, piece):
+    def list_by(self, origin_sq, piece):
         """利きのリスト"""
-        return self.array[relative_sq_arrays]
+        lst = list(self.array[self.relative_sq_arrays])
+
+        # TODO 長い利きを考慮
+        if piece == cshogi.BLANCE or piece == cshogi.BROOK or piece == cshogi.WROOK or piece == cshogi.BPROM_ROOK or piece == cshogi.WPROM_ROOK:
+            #　＿香
+            pass
+
+        if piece == cshogi.WLANCE or piece == cshogi.BROOK or piece == cshogi.WROOK:
+            #　ｖ香
+            pass
+
+        if piece == cshogi.BROOK or piece == cshogi.WROOK or piece == cshogi.BPROM_ROOK or piece == cshogi.WPROM_ROOK:
+            #　飛、竜の横
+            pass
+
+        if piece == cshogi.BBISHOP or piece == cshogi.WBISHOP or  piece == cshogi.BPROM_BISHOP or piece == cshogi.WPROM_BISHOP:
+            #　角、馬
+            pass
+
+        # 相対位置を、絶対位置へ変換
+        return [sq + origin_sq for sq in lst]
+
 
 
 class SenseOfBeauty():
