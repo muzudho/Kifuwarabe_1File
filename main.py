@@ -2,6 +2,8 @@ import cshogi
 # import numpy as np
 import random
 
+# 📖 [_cshogi.pyx](https://github.com/TadaoYamaoka/cshogi/blob/master/cshogi/_cshogi.pyx)
+
 _piece_to_string_array = [
     "　　", # 0. 空升
     "＿歩", # 1
@@ -151,6 +153,30 @@ _sq_to_jsa_table = [sq // 9 * 10 + 10 + sq % 9 + 1 for sq in range(81)]
 
 def sq_to_jsa(sq):
     """
+    cshogi 記法
+    　　example: ３四 cshogi.D3、その値は 21 （sq）
+
+    　　９　　８　　７　　６　　５　　４　　３　　２　　１
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+    ｜Ａ９｜Ａ８｜Ａ７｜Ａ６｜Ａ５｜Ａ４｜Ａ３｜Ａ２｜Ａ１｜　一
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+    ｜Ｂ９｜Ｂ８｜Ｂ７｜Ｂ６｜Ｂ５｜Ｂ４｜Ｂ３｜Ｂ２｜Ｂ１｜　二
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+    ｜Ｃ９｜Ｃ８｜Ｃ７｜Ｃ６｜Ｃ５｜Ｃ４｜Ｃ３｜Ｃ２｜Ｃ１｜　三
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+    ｜Ｄ９｜Ｄ８｜Ｄ７｜Ｄ６｜Ｄ５｜Ｄ４｜Ｄ３｜Ｄ２｜Ｄ１｜　四
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+    ｜Ｅ９｜Ｅ８｜Ｅ７｜Ｅ６｜Ｅ５｜Ｅ４｜Ｅ３｜Ｅ２｜Ｅ１｜　五
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+    ｜Ｆ９｜Ｆ８｜Ｆ７｜Ｆ６｜Ｆ５｜Ｆ４｜Ｆ３｜Ｆ２｜Ｆ１｜　六
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+    ｜Ｇ９｜Ｇ８｜Ｇ７｜Ｇ６｜Ｇ５｜Ｇ４｜Ｇ３｜Ｇ２｜Ｇ１｜　七
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+    ｜Ｈ９｜Ｈ８｜Ｈ７｜Ｈ６｜Ｈ５｜Ｈ４｜Ｈ３｜Ｈ２｜Ｈ１｜　八
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+    ｜Ｉ９｜Ｉ８｜Ｉ７｜Ｉ６｜Ｉ５｜Ｉ４｜Ｉ３｜Ｉ２｜Ｉ１｜　九
+    ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+
     スクウェア（Square, sq；升番号）
 
     　　９　　８　　７　　６　　５　　４　　３　　２　　１
@@ -198,6 +224,7 @@ def sq_to_jsa(sq):
     ｜９９｜８９｜７９｜６９｜５９｜４９｜３９｜２９｜１９｜　九
     ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
     """
+
     return _sq_to_jsa_table[sq]
 
 _jsa_to_sq_table = [(jsa//10-1) * 9 + jsa % 10 - 1 for jsa in range(100)]
@@ -290,10 +317,10 @@ class Kifuwarabe():
                 elif ranging_rook == 4:
                     print(f'beauty 相振り飛車')
 
-                piece_at28 = self.subordinate.board.pieces[jsa_to_sq(28)]
+                piece_at28 = self.subordinate.board.pieces[cshogi.H2]
                 print(f'２八の駒：{piece_to_string(piece_at28)}')
 
-                piece_at82 = self.subordinate.board.pieces[jsa_to_sq(82)]
+                piece_at82 = self.subordinate.board.pieces[cshogi.B8]
                 print(f'８二の駒：{piece_to_string(piece_at82)}')
 
 
@@ -399,15 +426,35 @@ class KifuwarabesColleague():
         """探索アルゴリズム　アルファーベーター刈り"""
         return self._alpha_beta_pruning
 
+    def get_static_exchange_evaluation(self):
+        """静的駒交換値"""
+
+        # TODO 最後に差した駒の移動先升番号。この升を dst_sq、その駒を dst_pc とでも表記するとする
+
+        # TODO destination に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
+
+        # TODO 味方の駒を入れる friend_queue、 相手の駒を入れる opponent_queue を作成
+        # TODO attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
+        # TODO dst_pc を opponent_queue へ入れる
+        # TODO attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
+
+        # TODO opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
+        # TODO 　　盤面は手番側なので、 opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
+        # TODO 　　friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
+
+        return 0
+
     def on_eval_on_leaf(self):
         """末端局面での評価値計算"""
 
         # 手番から見た駒割評価
         current_beta = self.kifuwarabes_subordinate.materials_value.eval(
             board=self.kifuwarabes_subordinate.board)
-        current_alpha = -current_beta
 
         # TODO 駒の取り合いを解消したい。Static Exchange Evaluation
+        current_beta += self.get_static_exchange_evaluation()
+
+        current_alpha = -current_beta
 
         ranging_rook = self.sense_of_beauty.check_ranging_rook()
 
