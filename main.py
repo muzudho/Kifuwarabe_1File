@@ -438,10 +438,11 @@ class Kifuwarabe():
                     print(f'[DEBUG] miss')
                 else:
                     # TODO その駒の利きを取得
-                    lst = self.colleague.control.list_by(origin_sq, piece)
+                    sq_list = self.colleague.control.sq_list_by(origin_sq, piece)
 
                     # TODO その利きを表示
-                    print(f'[DEBUG] lst:{lst}')
+                    print(f'[DEBUG] sq_list:{sq_list}')
+                    self.colleague.check_board_print.set_by_sq_list(sq_list)
                     self.colleague.check_board_print.do_it()
 
             elif cmd[0] == 'beauty':
@@ -619,7 +620,7 @@ class KifuwarabesColleague():
         for piece in self.kifuwarabes_subordinate.board.pieces:
 
             # その駒について、利いている升番号のリスト
-            control_list = self.control.list_by(
+            control_list = self.control.sq_list_by(
                 origin_sq = dst_sq,
                 piece = piece)
 
@@ -806,6 +807,8 @@ class CheckBoardPrint():
         self._kifuwarabes_colleague = kifuwarabes_colleague
         """きふわらべの同僚"""
 
+        self._number_board = [0] * 81
+
     @property
     def kifuwarabes_subordinate(self):
         """きふわらべの部下"""
@@ -816,128 +819,139 @@ class CheckBoardPrint():
         """きふわらべの同僚"""
         return self._kifuwarabes_colleague
 
+    @property
+    def number_board(self):
+        """数盤"""
+        return self._number_board
+
+    def set_by_sq_list(self, sq_list):
+        """升番号のリストを使って、盤をチェック"""
+        self._number_board = [0] * 81
+
+        for sq in sq_list:
+            self._number_board[sq] = 1
+
     def do_it(self):
         """それをする"""
-        number_board = range(81)
 
         text = ''
 
         # 盤
-        a = non_zero_to_cross(number_board[cshogi.A1])
-        b = non_zero_to_cross(number_board[cshogi.A2])
-        c = non_zero_to_cross(number_board[cshogi.A3])
-        d = non_zero_to_cross(number_board[cshogi.A4])
-        e = non_zero_to_cross(number_board[cshogi.A5])
-        f = non_zero_to_cross(number_board[cshogi.A6])
-        g = non_zero_to_cross(number_board[cshogi.A7])
-        h = non_zero_to_cross(number_board[cshogi.A8])
-        i = non_zero_to_cross(number_board[cshogi.A9])
+        a = non_zero_to_cross(self.number_board[cshogi.A1])
+        b = non_zero_to_cross(self.number_board[cshogi.A2])
+        c = non_zero_to_cross(self.number_board[cshogi.A3])
+        d = non_zero_to_cross(self.number_board[cshogi.A4])
+        e = non_zero_to_cross(self.number_board[cshogi.A5])
+        f = non_zero_to_cross(self.number_board[cshogi.A6])
+        g = non_zero_to_cross(self.number_board[cshogi.A7])
+        h = non_zero_to_cross(self.number_board[cshogi.A8])
+        i = non_zero_to_cross(self.number_board[cshogi.A9])
         text += f"""　　９　　８　　７　　６　　５　　４　　３　　２　　１
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 ｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　一
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
-        a = non_zero_to_cross(number_board[cshogi.B1])
-        b = non_zero_to_cross(number_board[cshogi.B2])
-        c = non_zero_to_cross(number_board[cshogi.B3])
-        d = non_zero_to_cross(number_board[cshogi.B4])
-        e = non_zero_to_cross(number_board[cshogi.B5])
-        f = non_zero_to_cross(number_board[cshogi.B6])
-        g = non_zero_to_cross(number_board[cshogi.B7])
-        h = non_zero_to_cross(number_board[cshogi.B8])
-        i = non_zero_to_cross(number_board[cshogi.B9])
+        a = non_zero_to_cross(self.number_board[cshogi.B1])
+        b = non_zero_to_cross(self.number_board[cshogi.B2])
+        c = non_zero_to_cross(self.number_board[cshogi.B3])
+        d = non_zero_to_cross(self.number_board[cshogi.B4])
+        e = non_zero_to_cross(self.number_board[cshogi.B5])
+        f = non_zero_to_cross(self.number_board[cshogi.B6])
+        g = non_zero_to_cross(self.number_board[cshogi.B7])
+        h = non_zero_to_cross(self.number_board[cshogi.B8])
+        i = non_zero_to_cross(self.number_board[cshogi.B9])
         text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　二
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
-        a = non_zero_to_cross(number_board[cshogi.C1])
-        b = non_zero_to_cross(number_board[cshogi.C2])
-        c = non_zero_to_cross(number_board[cshogi.C3])
-        d = non_zero_to_cross(number_board[cshogi.C4])
-        e = non_zero_to_cross(number_board[cshogi.C5])
-        f = non_zero_to_cross(number_board[cshogi.C6])
-        g = non_zero_to_cross(number_board[cshogi.C7])
-        h = non_zero_to_cross(number_board[cshogi.C8])
-        i = non_zero_to_cross(number_board[cshogi.C9])
+        a = non_zero_to_cross(self.number_board[cshogi.C1])
+        b = non_zero_to_cross(self.number_board[cshogi.C2])
+        c = non_zero_to_cross(self.number_board[cshogi.C3])
+        d = non_zero_to_cross(self.number_board[cshogi.C4])
+        e = non_zero_to_cross(self.number_board[cshogi.C5])
+        f = non_zero_to_cross(self.number_board[cshogi.C6])
+        g = non_zero_to_cross(self.number_board[cshogi.C7])
+        h = non_zero_to_cross(self.number_board[cshogi.C8])
+        i = non_zero_to_cross(self.number_board[cshogi.C9])
         text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　三
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
-        a = non_zero_to_cross(number_board[cshogi.D1])
-        b = non_zero_to_cross(number_board[cshogi.D2])
-        c = non_zero_to_cross(number_board[cshogi.D3])
-        d = non_zero_to_cross(number_board[cshogi.D4])
-        e = non_zero_to_cross(number_board[cshogi.D5])
-        f = non_zero_to_cross(number_board[cshogi.D6])
-        g = non_zero_to_cross(number_board[cshogi.D7])
-        h = non_zero_to_cross(number_board[cshogi.D8])
-        i = non_zero_to_cross(number_board[cshogi.D9])
+        a = non_zero_to_cross(self.number_board[cshogi.D1])
+        b = non_zero_to_cross(self.number_board[cshogi.D2])
+        c = non_zero_to_cross(self.number_board[cshogi.D3])
+        d = non_zero_to_cross(self.number_board[cshogi.D4])
+        e = non_zero_to_cross(self.number_board[cshogi.D5])
+        f = non_zero_to_cross(self.number_board[cshogi.D6])
+        g = non_zero_to_cross(self.number_board[cshogi.D7])
+        h = non_zero_to_cross(self.number_board[cshogi.D8])
+        i = non_zero_to_cross(self.number_board[cshogi.D9])
         text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　四
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
-        a = non_zero_to_cross(number_board[cshogi.E1])
-        b = non_zero_to_cross(number_board[cshogi.E2])
-        c = non_zero_to_cross(number_board[cshogi.E3])
-        d = non_zero_to_cross(number_board[cshogi.E4])
-        e = non_zero_to_cross(number_board[cshogi.E5])
-        f = non_zero_to_cross(number_board[cshogi.E6])
-        g = non_zero_to_cross(number_board[cshogi.E7])
-        h = non_zero_to_cross(number_board[cshogi.E8])
-        i = non_zero_to_cross(number_board[cshogi.E9])
+        a = non_zero_to_cross(self.number_board[cshogi.E1])
+        b = non_zero_to_cross(self.number_board[cshogi.E2])
+        c = non_zero_to_cross(self.number_board[cshogi.E3])
+        d = non_zero_to_cross(self.number_board[cshogi.E4])
+        e = non_zero_to_cross(self.number_board[cshogi.E5])
+        f = non_zero_to_cross(self.number_board[cshogi.E6])
+        g = non_zero_to_cross(self.number_board[cshogi.E7])
+        h = non_zero_to_cross(self.number_board[cshogi.E8])
+        i = non_zero_to_cross(self.number_board[cshogi.E9])
         text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　五
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
-        a = non_zero_to_cross(number_board[cshogi.F1])
-        b = non_zero_to_cross(number_board[cshogi.F2])
-        c = non_zero_to_cross(number_board[cshogi.F3])
-        d = non_zero_to_cross(number_board[cshogi.F4])
-        e = non_zero_to_cross(number_board[cshogi.F5])
-        f = non_zero_to_cross(number_board[cshogi.F6])
-        g = non_zero_to_cross(number_board[cshogi.F7])
-        h = non_zero_to_cross(number_board[cshogi.F8])
-        i = non_zero_to_cross(number_board[cshogi.F9])
+        a = non_zero_to_cross(self.number_board[cshogi.F1])
+        b = non_zero_to_cross(self.number_board[cshogi.F2])
+        c = non_zero_to_cross(self.number_board[cshogi.F3])
+        d = non_zero_to_cross(self.number_board[cshogi.F4])
+        e = non_zero_to_cross(self.number_board[cshogi.F5])
+        f = non_zero_to_cross(self.number_board[cshogi.F6])
+        g = non_zero_to_cross(self.number_board[cshogi.F7])
+        h = non_zero_to_cross(self.number_board[cshogi.F8])
+        i = non_zero_to_cross(self.number_board[cshogi.F9])
         text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　六
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
-        a = non_zero_to_cross(number_board[cshogi.G1])
-        b = non_zero_to_cross(number_board[cshogi.G2])
-        c = non_zero_to_cross(number_board[cshogi.G3])
-        d = non_zero_to_cross(number_board[cshogi.G4])
-        e = non_zero_to_cross(number_board[cshogi.G5])
-        f = non_zero_to_cross(number_board[cshogi.G6])
-        g = non_zero_to_cross(number_board[cshogi.G7])
-        h = non_zero_to_cross(number_board[cshogi.G8])
-        i = non_zero_to_cross(number_board[cshogi.G9])
+        a = non_zero_to_cross(self.number_board[cshogi.G1])
+        b = non_zero_to_cross(self.number_board[cshogi.G2])
+        c = non_zero_to_cross(self.number_board[cshogi.G3])
+        d = non_zero_to_cross(self.number_board[cshogi.G4])
+        e = non_zero_to_cross(self.number_board[cshogi.G5])
+        f = non_zero_to_cross(self.number_board[cshogi.G6])
+        g = non_zero_to_cross(self.number_board[cshogi.G7])
+        h = non_zero_to_cross(self.number_board[cshogi.G8])
+        i = non_zero_to_cross(self.number_board[cshogi.G9])
         text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　七
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
-        a = non_zero_to_cross(number_board[cshogi.H1])
-        b = non_zero_to_cross(number_board[cshogi.H2])
-        c = non_zero_to_cross(number_board[cshogi.H3])
-        d = non_zero_to_cross(number_board[cshogi.H4])
-        e = non_zero_to_cross(number_board[cshogi.H5])
-        f = non_zero_to_cross(number_board[cshogi.H6])
-        g = non_zero_to_cross(number_board[cshogi.H7])
-        h = non_zero_to_cross(number_board[cshogi.H8])
-        i = non_zero_to_cross(number_board[cshogi.H9])
+        a = non_zero_to_cross(self.number_board[cshogi.H1])
+        b = non_zero_to_cross(self.number_board[cshogi.H2])
+        c = non_zero_to_cross(self.number_board[cshogi.H3])
+        d = non_zero_to_cross(self.number_board[cshogi.H4])
+        e = non_zero_to_cross(self.number_board[cshogi.H5])
+        f = non_zero_to_cross(self.number_board[cshogi.H6])
+        g = non_zero_to_cross(self.number_board[cshogi.H7])
+        h = non_zero_to_cross(self.number_board[cshogi.H8])
+        i = non_zero_to_cross(self.number_board[cshogi.H9])
         text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　八
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
-        a = non_zero_to_cross(number_board[cshogi.I1])
-        b = non_zero_to_cross(number_board[cshogi.I2])
-        c = non_zero_to_cross(number_board[cshogi.I3])
-        d = non_zero_to_cross(number_board[cshogi.I4])
-        e = non_zero_to_cross(number_board[cshogi.I5])
-        f = non_zero_to_cross(number_board[cshogi.I6])
-        g = non_zero_to_cross(number_board[cshogi.I7])
-        h = non_zero_to_cross(number_board[cshogi.I8])
-        i = non_zero_to_cross(number_board[cshogi.I9])
+        a = non_zero_to_cross(self.number_board[cshogi.I1])
+        b = non_zero_to_cross(self.number_board[cshogi.I2])
+        c = non_zero_to_cross(self.number_board[cshogi.I3])
+        d = non_zero_to_cross(self.number_board[cshogi.I4])
+        e = non_zero_to_cross(self.number_board[cshogi.I5])
+        f = non_zero_to_cross(self.number_board[cshogi.I6])
+        g = non_zero_to_cross(self.number_board[cshogi.I7])
+        h = non_zero_to_cross(self.number_board[cshogi.I8])
+        i = non_zero_to_cross(self.number_board[cshogi.I9])
         text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　九
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
@@ -1475,8 +1489,8 @@ class Control():
         """配列"""
         return self._relative_sq_arrays
 
-    def list_by(self, origin_sq, piece):
-        """利きのリスト"""
+    def sq_list_by(self, origin_sq, piece):
+        """利き升番号のリスト"""
 
         relative_sq_array = self.relative_sq_arrays[piece]
 
