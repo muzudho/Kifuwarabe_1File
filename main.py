@@ -418,6 +418,10 @@ class Kifuwarabe():
                 piece_at82 = self.subordinate.board.pieces[cshogi.B8]
                 print(f'８二の駒：{piece_to_string(piece_at82)}')
 
+            elif cmd[0] == 'board':
+                """独自拡張。盤表示"""
+                self.colleague.board_print.do_it()
+
 
     def position(self, sfen, usi_moves):
         """局面データ解析"""
@@ -471,6 +475,12 @@ class KifuwarabesColleague():
         self._kifuwarabes_subordinate = kifuwarabes_subordinate
         """きふわらべの部下"""
 
+        self._board_print = BoardPrint(
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
+            kifuwarabes_colleague=self
+        )
+        """盤表示"""
+
         self._board_value = BoardValue(
             kifuwarabes_subordinate=kifuwarabes_subordinate,
             kifuwarabes_colleague=self
@@ -506,6 +516,11 @@ class KifuwarabesColleague():
     def kifuwarabes_subordinate(self):
         """きふわらべの部下"""
         return self._kifuwarabes_subordinate
+
+    @property
+    def board_print(self):
+        """盤表示"""
+        return self._board_print
 
     @property
     def board_value(self):
@@ -710,6 +725,40 @@ class MaterialsValue():
         else:
             """後手は評価値の正負を反転"""
             return -value
+
+class BoardPrint():
+    """盤表示"""
+
+    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
+        """初期化
+
+        Parameters
+        ----------
+        kifuwarabes_subordinate
+            きふわらべの部下
+        kifuwarabes_colleague
+            きふわらべの同僚
+        """
+
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
+
+        self._kifuwarabes_colleague = kifuwarabes_colleague
+        """きふわらべの同僚"""
+
+    @property
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
+
+    @property
+    def kifuwarabes_colleague(self):
+        """きふわらべの同僚"""
+        return self._kifuwarabes_colleague
+
+    def do_it(self):
+        """それをする"""
+        print('TODO 盤表示')
 
 class BoardValue():
     """盤の決まりきった価値"""
