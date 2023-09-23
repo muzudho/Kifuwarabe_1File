@@ -417,9 +417,24 @@ class Kifuwarabe():
 
             elif cmd[0] == 'debug':
                 """独自拡張。デバッグ"""
-                for sq, piece in enumerate( self.subordinate.board.pieces):
+                for sq, piece in enumerate(self.subordinate.board.pieces):
                     jsa = sq_to_jsa(sq)
                     print(f'升：{jsa}　駒：{piece_to_string(piece)}　sq：{jsa_to_sq(jsa)}')
+
+                # TODO 適当なマス番号をピックアップ
+                origin_sq = random.choice(range(81))
+                # TODO 盤上の適当な升をピックアップ
+                piece = self.subordinate.board.pieces[origin_sq]
+                print(f'[DEBUG] origin_sq:{origin_sq} piece:{piece}')
+
+                if piece == cshogi.NONE:
+                    print(f'[DEBUG] miss')
+                else:
+                    # TODO その駒の利きを取得
+                    lst = self.colleague.control.list_by(origin_sq, piece)
+
+                    # TODO その利きを表示
+                    print(f'[DEBUG] lst:{lst}')
 
             elif cmd[0] == 'beauty':
                 """独自拡張。美意識を返す"""
