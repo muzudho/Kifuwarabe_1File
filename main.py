@@ -2,6 +2,41 @@ import cshogi
 # import numpy as np
 import random
 
+_piece_to_string_array = [
+    "　　", # 0. 空升
+    "＿歩", # 1
+    "＿香", # 2
+    "＿桂", # 3
+    "＿銀", # 4
+    "＿角", # 5
+    "＿飛", # 6
+    "＿金", # 7
+    "＿玉", # 8
+    "＿と", # 9
+    "＿杏", # 10
+    "＿圭", # 11
+    "＿全", # 12
+    "＿馬", # 13
+    "＿竜", # 14
+    "１５", # 15. 未使用
+    "１６", # 16. 未使用
+    "ｖ歩", # 17
+    "ｖ香", # 18
+    "ｖ桂", # 19
+    "ｖ銀", # 20
+    "ｖ角", # 21
+    "ｖ飛", # 22
+    "ｖ金", # 23
+    "ｖ玉", # 24
+    "ｖと", # 25
+    "ｖ杏", # 26
+    "ｖ圭", # 27
+    "ｖ全", # 28
+    "ｖ馬", # 29
+    "ｖ竜", # 30
+    "３１", # 31. 未使用
+    ]
+
 def piece_to_string(pc):
     """
     ピース（Piece, pc；駒番号）
@@ -28,70 +63,8 @@ def piece_to_string(pc):
     未使用　　１５　　　３１
     """
 
-    if pc == 0:
-        return "　　" # 空升
-    elif pc == 1:
-        return "＿歩"
-    elif pc == 2:
-        return "＿香"
-    elif pc == 3:
-        return "＿桂"
-    elif pc == 4:
-        return "＿銀"
-    elif pc == 5:
-        return "＿角"
-    elif pc == 6:
-        return "＿飛"
-    elif pc == 7:
-        return "＿金"
-    elif pc == 8:
-        return "＿玉"
-    elif pc == 9:
-        return "＿と"
-    elif pc == 10:
-        return "＿杏"
-    elif pc == 11:
-        return "＿圭"
-    elif pc == 12:
-        return "＿全"
-    elif pc == 13:
-        return "＿馬"
-    elif pc == 14:
-        return "＿竜"
-    elif pc == 15:
-        return "１５" # 未使用
-    elif pc == 16:
-        return "１６" # 未使用
-    elif pc == 17:
-        return "ｖ歩"
-    elif pc == 18:
-        return "ｖ香"
-    elif pc == 19:
-        return "ｖ桂"
-    elif pc == 20:
-        return "ｖ銀"
-    elif pc == 21:
-        return "ｖ角"
-    elif pc == 22:
-        return "ｖ飛"
-    elif pc == 23:
-        return "ｖ金"
-    elif pc == 24:
-        return "ｖ玉"
-    elif pc == 25:
-        return "ｖと"
-    elif pc == 26:
-        return "ｖ杏"
-    elif pc == 27:
-        return "ｖ圭"
-    elif pc == 28:
-        return "ｖ全"
-    elif pc == 29:
-        return "ｖ馬"
-    elif pc == 30:
-        return "ｖ竜"
-    elif pc == 31:
-        return "３１" # 未使用
+    if 0 <= pc and pc < 32:
+        return _piece_to_string_array[pc]
     else:
         return f'{pc}' # エラー
 
