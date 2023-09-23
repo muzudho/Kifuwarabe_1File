@@ -786,12 +786,14 @@ class PositionPrint():
         """それをする"""
         board = self.kifuwarabes_subordinate.board
 
+        move_number_str = board.move_number
+
         if board.turn == cshogi.BLACK:
             turn_str = "black"
         else:
             turn_str = "white"
 
-        pos_str = f'''[{turn_str}]
+        pos_str = f'''[{move_number_str} moves / {turn_str}]
 
 '''
 
