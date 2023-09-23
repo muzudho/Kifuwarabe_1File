@@ -207,12 +207,13 @@ def sq_to_jsa(sq):
     ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
     """
     return _sq_to_jsa_table[sq]
-    # return sq // 9 * 10 + 10 + sq % 9 + 1
+
+_jsa_to_sq_table = [(jsa//10-1) * 9 + jsa % 10 - 1 for jsa in range(100)]
 
 def jsa_to_sq(jsa):
     """逆関数
     （ｆｌｏｏｒ（ｊｓａ／１０）ー１）＊９＋（ｊｓａ％１０）ー１"""
-    return (jsa//10-1) * 9 + jsa % 10 - 1
+    return _jsa_to_sq_table[jsa]
 
 class Kifuwarabe():
     """きふわらべ"""
