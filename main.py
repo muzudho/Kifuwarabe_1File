@@ -428,19 +428,19 @@ class Kifuwarabe():
                     jsa = sq_to_jsa(sq)
                     print(f'升：{jsa}　駒：{piece_to_string(piece)}　sq：{jsa_to_sq(jsa)}')
 
-                # TODO 適当なマス番号をピックアップ
+                # 適当なマス番号をピックアップ
                 origin_sq = random.choice(range(81))
-                # TODO 盤上の適当な升をピックアップ
+                # 盤上の適当な升をピックアップ
                 piece = self.subordinate.board.pieces[origin_sq]
                 print(f'[DEBUG] origin_sq:{origin_sq} piece:{piece}')
 
                 if piece == cshogi.NONE:
                     print(f'[DEBUG] miss')
                 else:
-                    # TODO その駒の利きを取得
+                    # その駒の利きを取得
                     sq_list = self.colleague.control.sq_list_by(origin_sq, piece)
 
-                    # TODO その利きを表示
+                    # その利きを表示
                     print(f'[DEBUG] sq_list:{sq_list}')
                     self.colleague.check_board_print.set_by_sq_list(sq_list)
                     self.colleague.check_board_print.do_it()
@@ -656,7 +656,7 @@ class KifuwarabesColleague():
             piece_type = opponent_queue.pop()
             value += self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
 
-            # TODO 　　friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
+            # friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
             piece_type = friend_queue.pop()
             value -= self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
 
