@@ -346,6 +346,9 @@ class KifuwarabesColleague():
             きふわらべの部下
         """
 
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
+
         self._board_value = BoardValue(
             kifuwarabes_subordinate=kifuwarabes_subordinate,
             kifuwarabes_colleague=self
@@ -366,9 +369,15 @@ class KifuwarabesColleague():
 
         self._alpha_beta_pruning = AlphaBetaPruning(
             kifuwarabes_subordinate=kifuwarabes_subordinate,
-            kifuwarabes_colleague=self
+            kifuwarabes_colleague=self,
+            on_eval_on_leaf=self.on_eval_on_leaf
         )
         """探索アルゴリズム　アルファーベーター刈り"""
+
+    @property
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
 
     @property
     def board_value(self):
@@ -389,6 +398,50 @@ class KifuwarabesColleague():
     def alpha_beta_pruning(self):
         """探索アルゴリズム　アルファーベーター刈り"""
         return self._alpha_beta_pruning
+
+    def on_eval_on_leaf(self):
+        """末端局面での評価値計算"""
+
+        # 手番から見た駒割評価
+        current_beta = self.kifuwarabes_subordinate.materials_value.eval(
+            board=self.kifuwarabes_subordinate.board)
+        current_alpha = -current_beta
+
+        # TODO 駒の取り合いを解消したい。Static Exchange Evaluation
+
+        ranging_rook = self.sense_of_beauty.check_ranging_rook()
+
+        if ranging_rook == 2:
+            # 先手振り飛車
+            if cshogi.BLACK == self.kifuwarabes_subordinate.board.turn:
+                # 相手が振り飛車やってる
+                current_alpha -= 10
+            else:
+                # 自分が振り飛車やってる
+                current_alpha += 10
+
+        elif ranging_rook == 3:
+            # 後手振り飛車
+            if cshogi.WHITE == self.kifuwarabes_subordinate.board.turn:
+                # 相手が振り飛車やってる
+                current_alpha -= 10
+            else:
+                # 自分が振り飛車やってる
+                current_alpha += 10
+
+        elif ranging_rook == 1:
+            # 相居飛車は、やりたいわけではない
+            pass
+
+        elif ranging_rook == 4:
+            # 相振り飛車は、やりたいわけではない
+            pass
+
+        else:
+            # 何でもない
+            pass
+
+        return current_alpha
 
 class MaterialsValue():
     """手番から見た駒割評価"""
@@ -707,7 +760,7 @@ class AlphaBetaPruning():
     📖 [アルファベータ探索（alpha-beta pruning）やろうぜ（＾～＾）？](https://crieit.net/drafts/60e6206eaf964)
     """
 
-    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
+    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague, on_eval_on_leaf):
         """初期化
 
         Parameters
@@ -722,6 +775,9 @@ class AlphaBetaPruning():
         self._kifuwarabes_colleague = kifuwarabes_colleague
         """きふわらべの同僚"""
 
+        self._on_eval_on_leaf = on_eval_on_leaf
+        """末端局面での評価値計算"""
+
     @property
     def kifuwarabes_subordinate(self):
         """きふわらべの部下"""
@@ -731,6 +787,11 @@ class AlphaBetaPruning():
     def kifuwarabes_colleague(self):
         """きふわらべの同僚"""
         return self._kifuwarabes_colleague
+
+    @property
+    def on_eval_on_leaf(self):
+        """末端局面での評価値計算"""
+        return self._on_eval_on_leaf
 
     def do_it(self, depth, alpha, beta, is_root=False):
         """それをする
@@ -773,41 +834,8 @@ class AlphaBetaPruning():
                 else:
                     """末端局面評価値"""
 
-                    # 手番から見た駒割評価
-                    current_alpha = -self.kifuwarabes_subordinate.materials_value.eval(
-                        board=self.kifuwarabes_subordinate.board)
-
-                    ranging_rook = self.kifuwarabes_colleague.sense_of_beauty.check_ranging_rook()
-
-                    if ranging_rook == 2:
-                        # 先手振り飛車
-                        if cshogi.BLACK == self.kifuwarabes_subordinate.board.turn:
-                            # 相手が振り飛車やってる
-                            current_alpha -= 10
-                        else:
-                            # 自分が振り飛車やってる
-                            current_alpha += 10
-
-                    elif ranging_rook == 3:
-                        # 後手振り飛車
-                        if cshogi.WHITE == self.kifuwarabes_subordinate.board.turn:
-                            # 相手が振り飛車やってる
-                            current_alpha -= 10
-                        else:
-                            # 自分が振り飛車やってる
-                            current_alpha += 10
-
-                    elif ranging_rook == 1:
-                        # 相居飛車は、やりたいわけではない
-                        pass
-
-                    elif ranging_rook == 4:
-                        # 相振り飛車は、やりたいわけではない
-                        pass
-
-                    else:
-                        # 何でもない
-                        pass
+                    current_beta = self.on_eval_on_leaf()
+                    current_alpha = -current_beta
 
             else:
                 current_alpha = -checked_beta
