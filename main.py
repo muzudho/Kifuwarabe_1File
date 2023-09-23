@@ -68,72 +68,45 @@ def piece_to_string(pc):
     else:
         return f'{pc}' # エラー
 
+_string_to_piece_table = {
+    "　　":0, # 空升
+    "＿歩":1,
+    "＿香":2,
+    "＿桂":3,
+    "＿銀":4,
+    "＿角":5,
+    "＿飛":6,
+    "＿金":7,
+    "＿玉":8,
+    "＿と":9,
+    "＿杏":10,
+    "＿圭":11,
+    "＿全":12,
+    "＿馬":13,
+    "＿竜":14,
+    "１５":15, # 未使用
+    "１６":16, # 未使用
+    "ｖ歩":17,
+    "ｖ香":18,
+    "ｖ桂":19,
+    "ｖ銀":20,
+    "ｖ角":21,
+    "ｖ飛":22,
+    "ｖ金":23,
+    "ｖ玉":24,
+    "ｖと":25,
+    "ｖ杏":26,
+    "ｖ圭":27,
+    "ｖ全":28,
+    "ｖ馬":29,
+    "ｖ竜":30,
+    "３１":31, # 未使用
+}
+
 def string_to_piece(s):
     """逆関数"""
-    if s == "　　": # 空升
-        return 0
-    elif s == "＿歩":
-        return 1
-    elif s == "＿香":
-        return 2
-    elif s == "＿桂":
-        return 3
-    elif s == "＿銀":
-        return 4
-    elif s == "＿角":
-        return 5
-    elif s == "＿飛":
-        return 6
-    elif s == "＿金":
-        return 7
-    elif s == "＿玉":
-        return 8
-    elif s == "＿と":
-        return 9
-    elif s == "＿杏":
-        return 10
-    elif s == "＿圭":
-        return 11
-    elif s == "＿全":
-        return 12
-    elif s == "＿馬":
-        return 13
-    elif s == "＿竜":
-        return 14
-    elif s == "１５": # 未使用
-        return 15
-    elif s == "１６": # 未使用
-        return 16
-    elif s == "ｖ歩":
-        return 17
-    elif s == "ｖ香":
-        return 18
-    elif s == "ｖ桂":
-        return 19
-    elif s == "ｖ銀":
-        return 20
-    elif s == "ｖ角":
-        return 21
-    elif s == "ｖ飛":
-        return 22
-    elif s == "ｖ金":
-        return 23
-    elif s == "ｖ玉":
-        return 24
-    elif s == "ｖと":
-        return 25
-    elif s == "ｖ杏":
-        return 26
-    elif s == "ｖ圭":
-        return 27
-    elif s == "ｖ全":
-        return 28
-    elif s == "ｖ馬":
-        return 29
-    elif s == "ｖ竜":
-        return 30
-    elif s == "３１": # 未使用
-        return 31
+    if 0 <= s and s < 32:
+        return _string_to_piece_table[s]
     else:
         return f'{s}' # エラー
 
@@ -681,7 +654,7 @@ class Thought():
 
         # move = self.choice_random(list(self.kifuwarabes_subordinate.board.legal_moves))
         (current_beta, bestmove_list) = self.kifuwarabes_colleague.min_max.do_it(
-            depth=2,
+            depth=3,
             alpha = -9999999, # 数ある選択肢の中の、評価値の下限。この下限値は、ベータ値いっぱいまで上げたい"""
             beta = 9999999, # 数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない
             is_root = True
