@@ -535,7 +535,7 @@ class KifuwarabesColleague():
     def get_static_exchange_evaluation(self, move):
         """静的駒交換値"""
 
-        # TODO 最後に差した駒の移動先升番号。この升を dst_sq、その駒の種類を dst_pt とでも表記するとする
+        # 最後に差した駒の移動先升番号。この升を dst_sq、その駒の種類を dst_pt とでも表記するとする
         dst_sq = MoveHelper.destination(move)
         dst_pt = MoveHelper.piece_type(move)
 
@@ -551,17 +551,40 @@ class KifuwarabesColleague():
             if dst_sq in control_list:
                 attacker_list.append(piece)
 
-        # TODO 味方の駒を入れる friend_queue、 相手の駒を入れる opponent_queue を作成
-        
-        # TODO attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
-        # TODO dst_pt を opponent_queue へ入れる
-        # TODO attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
+        # 手番（味方）の駒を入れる friend_queue、 相手番の駒を入れる opponent_queue を作成
+        friend_queue = []
+        opponent_queue = []
 
-        # TODO opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
-        # TODO 　　盤面は手番側なので、 opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
-        # TODO 　　friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
+        # dst_pt を opponent_queue へ入れる
+        opponent_queue.append(dst_pt)
 
-        return 0
+        for piece in attacker_list:
+            if self.kifuwarabes_subordinate.board.turn == cshogi.Black:
+                if piece < 16:
+                    # attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
+                    friend_queue.append(PieceTypeHelper.without_turn(piece))
+                else:
+                    # attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
+                    opponent_queue.append(PieceTypeHelper.without_turn(piece))
+            else:
+                if 16 <= piece:
+                    friend_queue.append(PieceTypeHelper.without_turn(piece))
+                else:
+                    opponent_queue.append(PieceTypeHelper.without_turn(piece))
+
+        value = 0
+
+        # opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
+        while 0<len(opponent_queue) and 0<len(friend_queue):
+            # 盤面は手番側なので、 opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
+            piece_type = opponent_queue.pop()
+            value += self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
+
+            # TODO 　　friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
+            piece_type = friend_queue.pop()
+            value -= self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
+
+        return value
 
     def on_eval_on_leaf(self, move):
         """末端局面での評価値計算"""
@@ -633,6 +656,13 @@ class MaterialsValue():
         self._hand = [pawn_value, lance_value, knight_value, silver_value, gold_value, bishop_value, rook_value,]
         """持ち駒。歩、香、桂、銀、金、角、飛"""
 
+        self._piece_type_values = [
+            none_value, pawn_value, lance_value, knight_value, silver_value, bishop_value, rook_value, gold_value, king_value,
+            # None、▲歩、▲香、▲桂、▲銀、▲角、▲飛、▲金、▲玉、
+            promoted_pawn, promoted_lance, promoted_knight, promoted_silver, horse, dragon, none_value,
+            # ▲と、▲杏、▲圭、▲全、▲馬、▲竜、未使用、
+        ]
+
         self._on_board = [
             none_value, pawn_value, lance_value, knight_value, silver_value, bishop_value, rook_value, gold_value, king_value,
             # None、▲歩、▲香、▲桂、▲銀、▲角、▲飛、▲金、▲玉、
@@ -651,6 +681,11 @@ class MaterialsValue():
     def hand(self):
         """持ち駒の価値"""
         return self._hand
+
+    @property
+    def piece_type_values(self):
+        """駒の種類別の価値"""
+        return self._piece_type_values
 
     @property
     def on_board(self):
@@ -1010,27 +1045,34 @@ class Control():
 
     def list_by(self, origin_sq, piece):
         """利きのリスト"""
-        lst = list(self.array[self.relative_sq_arrays])
 
-        # TODO 長い利きを考慮
-        if piece == cshogi.BLANCE or piece == cshogi.BROOK or piece == cshogi.WROOK or piece == cshogi.BPROM_ROOK or piece == cshogi.WPROM_ROOK:
-            #　＿香
-            pass
+        relative_sq_array = self.relative_sq_arrays[piece]
 
-        if piece == cshogi.WLANCE or piece == cshogi.BROOK or piece == cshogi.WROOK:
-            #　ｖ香
-            pass
+        if relative_sq_array is None:
+            return []
 
-        if piece == cshogi.BROOK or piece == cshogi.WROOK or piece == cshogi.BPROM_ROOK or piece == cshogi.WPROM_ROOK:
-            #　飛、竜の横
-            pass
+        else:
+            lst = list(relative_sq_array)
 
-        if piece == cshogi.BBISHOP or piece == cshogi.WBISHOP or  piece == cshogi.BPROM_BISHOP or piece == cshogi.WPROM_BISHOP:
-            #　角、馬
-            pass
+            # TODO 長い利きを考慮
+            if piece == cshogi.BLANCE or piece == cshogi.BROOK or piece == cshogi.WROOK or piece == cshogi.BPROM_ROOK or piece == cshogi.WPROM_ROOK:
+                #　＿香
+                pass
 
-        # 相対位置を、絶対位置へ変換
-        return [sq + origin_sq for sq in lst]
+            if piece == cshogi.WLANCE or piece == cshogi.BROOK or piece == cshogi.WROOK:
+                #　ｖ香
+                pass
+
+            if piece == cshogi.BROOK or piece == cshogi.WROOK or piece == cshogi.BPROM_ROOK or piece == cshogi.WPROM_ROOK:
+                #　飛、竜の横
+                pass
+
+            if piece == cshogi.BBISHOP or piece == cshogi.WBISHOP or  piece == cshogi.BPROM_BISHOP or piece == cshogi.WPROM_BISHOP:
+                #　角、馬
+                pass
+
+            # 相対位置を、絶対位置へ変換
+            return [sq + origin_sq for sq in lst]
 
 
 
@@ -1363,6 +1405,13 @@ class PieceHelper():
     @staticmethod
     def turn_and_piece_type(turn, piece_type):
         return turn * 16 + piece_type
+
+class PieceTypeHelper():
+    """駒の種類ヘルパー"""
+
+    @staticmethod
+    def without_turn(piece):
+        return piece % 16
 
 if __name__ == '__main__':
     """コマンドから実行時"""
