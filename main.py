@@ -418,9 +418,9 @@ class Kifuwarabe():
                 piece_at82 = self.subordinate.board.pieces[cshogi.B8]
                 print(f'８二の駒：{piece_to_string(piece_at82)}')
 
-            elif cmd[0] == 'board':
-                """独自拡張。盤表示"""
-                self.colleague.board_print.do_it()
+            elif cmd[0] == 'pos':
+                """独自拡張。局面表示"""
+                self.colleague.position_print.do_it()
 
 
     def position(self, sfen, usi_moves):
@@ -475,11 +475,11 @@ class KifuwarabesColleague():
         self._kifuwarabes_subordinate = kifuwarabes_subordinate
         """きふわらべの部下"""
 
-        self._board_print = BoardPrint(
+        self._position_print = PositionPrint(
             kifuwarabes_subordinate=kifuwarabes_subordinate,
             kifuwarabes_colleague=self
         )
-        """盤表示"""
+        """局面表示"""
 
         self._board_value = BoardValue(
             kifuwarabes_subordinate=kifuwarabes_subordinate,
@@ -518,9 +518,9 @@ class KifuwarabesColleague():
         return self._kifuwarabes_subordinate
 
     @property
-    def board_print(self):
-        """盤表示"""
-        return self._board_print
+    def position_print(self):
+        """局面表示"""
+        return self._position_print
 
     @property
     def board_value(self):
@@ -726,8 +726,8 @@ class MaterialsValue():
             """後手は評価値の正負を反転"""
             return -value
 
-class BoardPrint():
-    """盤表示"""
+class PositionPrint():
+    """局面表示"""
 
     def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
         """初期化
