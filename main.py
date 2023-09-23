@@ -100,25 +100,25 @@ def piece_to_string(pc):
         return f'{pc}' # エラー
 
 _number_of_hand_to_string_list = [
-    "００",
-    "０１",
-    "０２",
-    "０３",
-    "０４",
-    "０５",
-    "０６",
-    "０７",
-    "０８",
-    "０９",
-    "１０",
-    "１１",
-    "１２",
-    "１３",
-    "１４",
-    "１５",
-    "１６",
-    "１７",
-    "１８",
+    "　　", #  0
+    "　１", #  1
+    "　２", #  2
+    "　３", #  3
+    "　４", #  4
+    "　５", #  5
+    "　６", #  6
+    "　７", #  7
+    "　８", #  8
+    "　９", #  9
+    "１０", # 10
+    "１１", # 11
+    "１２", # 12
+    "１３", # 13
+    "１４", # 14
+    "１５", # 15
+    "１６", # 16
+    "１７", # 17
+    "１８", # 18
 ]
 
 def number_of_hand_to_string(number):
@@ -810,6 +810,7 @@ class PositionPrint():
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 ｜{a}｜{b}｜{c}｜{d}｜{e}｜{f}｜{g}｜
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+
 """
 
         # 盤
@@ -941,7 +942,8 @@ class PositionPrint():
         f = number_of_hand_to_string(board.pieces_in_hand[cshogi.BLACK][5])
         g = number_of_hand_to_string(board.pieces_in_hand[cshogi.BLACK][6])
 
-        pos_str += f"""　　　　　　　　飛　　角　　金　　銀　　桂　　香　　歩
+        pos_str += f"""
+　　　　　　　　飛　　角　　金　　銀　　桂　　香　　歩
 　　　　　　＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 　　　　　　｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜
 　　　　　　＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
