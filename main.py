@@ -99,6 +99,32 @@ def piece_to_string(pc):
     else:
         return f'{pc}' # エラー
 
+_number_of_hand_to_string_list = [
+    "００",
+    "０１",
+    "０２",
+    "０３",
+    "０４",
+    "０５",
+    "０６",
+    "０７",
+    "０８",
+    "０９",
+    "１０",
+    "１１",
+    "１２",
+    "１３",
+    "１４",
+    "１５",
+    "１６",
+    "１７",
+    "１８",
+]
+
+def number_of_hand_to_string(number):
+    """持ち駒の数の表示文字列"""
+    return _number_of_hand_to_string_list[number]
+
 _string_to_piece_table = {
     "　　":0, # 空升
     "＿歩":1,
@@ -765,8 +791,26 @@ class PositionPrint():
         else:
             turn_str = "white"
 
-        board_str = ""
+        pos_str = f'''[{turn_str}]
 
+'''
+
+        # 後手持ち駒
+        a = number_of_hand_to_string(board.pieces_in_hand[cshogi.WHITE][0])
+        b = number_of_hand_to_string(board.pieces_in_hand[cshogi.WHITE][1])
+        c = number_of_hand_to_string(board.pieces_in_hand[cshogi.WHITE][2])
+        d = number_of_hand_to_string(board.pieces_in_hand[cshogi.WHITE][3])
+        e = number_of_hand_to_string(board.pieces_in_hand[cshogi.WHITE][4])
+        f = number_of_hand_to_string(board.pieces_in_hand[cshogi.WHITE][5])
+        g = number_of_hand_to_string(board.pieces_in_hand[cshogi.WHITE][6])
+
+        pos_str += f"""　　歩　　香　　桂　　銀　　金　　角　　飛
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+｜{a}｜{b}｜{c}｜{d}｜{e}｜{f}｜{g}｜
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        # 盤
         a = piece_to_string(board.pieces[cshogi.A1])
         b = piece_to_string(board.pieces[cshogi.A2])
         c = piece_to_string(board.pieces[cshogi.A3])
@@ -776,7 +820,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.A7])
         h = piece_to_string(board.pieces[cshogi.A8])
         i = piece_to_string(board.pieces[cshogi.A9])
-        board_str += f"""　　９　　８　　７　　６　　５　　４　　３　　２　　１
+        pos_str += f"""　　９　　８　　７　　６　　５　　４　　３　　２　　１
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 ｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　一
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
@@ -791,7 +835,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.B7])
         h = piece_to_string(board.pieces[cshogi.B8])
         i = piece_to_string(board.pieces[cshogi.B9])
-        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　二
+        pos_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　二
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -804,7 +848,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.C7])
         h = piece_to_string(board.pieces[cshogi.C8])
         i = piece_to_string(board.pieces[cshogi.C9])
-        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　三
+        pos_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　三
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -817,7 +861,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.D7])
         h = piece_to_string(board.pieces[cshogi.D8])
         i = piece_to_string(board.pieces[cshogi.D9])
-        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　四
+        pos_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　四
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -830,7 +874,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.E7])
         h = piece_to_string(board.pieces[cshogi.E8])
         i = piece_to_string(board.pieces[cshogi.E9])
-        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　五
+        pos_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　五
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -843,7 +887,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.F7])
         h = piece_to_string(board.pieces[cshogi.F8])
         i = piece_to_string(board.pieces[cshogi.F9])
-        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　六
+        pos_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　六
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -856,7 +900,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.G7])
         h = piece_to_string(board.pieces[cshogi.G8])
         i = piece_to_string(board.pieces[cshogi.G9])
-        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　七
+        pos_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　七
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -869,7 +913,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.H7])
         h = piece_to_string(board.pieces[cshogi.H8])
         i = piece_to_string(board.pieces[cshogi.H9])
-        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　八
+        pos_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　八
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -882,13 +926,26 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.I7])
         h = piece_to_string(board.pieces[cshogi.I8])
         i = piece_to_string(board.pieces[cshogi.I9])
-        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　九
+        pos_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　九
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
-        print(f'''[{turn_str}]TODO 盤表示
+        # 先手持ち駒
+        a = number_of_hand_to_string(board.pieces_in_hand[cshogi.BLACK][0])
+        b = number_of_hand_to_string(board.pieces_in_hand[cshogi.BLACK][1])
+        c = number_of_hand_to_string(board.pieces_in_hand[cshogi.BLACK][2])
+        d = number_of_hand_to_string(board.pieces_in_hand[cshogi.BLACK][3])
+        e = number_of_hand_to_string(board.pieces_in_hand[cshogi.BLACK][4])
+        f = number_of_hand_to_string(board.pieces_in_hand[cshogi.BLACK][5])
+        g = number_of_hand_to_string(board.pieces_in_hand[cshogi.BLACK][6])
 
-{board_str}''')
+        pos_str += f"""　　　　　　　　飛　　角　　金　　銀　　桂　　香　　歩
+　　　　　　＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+　　　　　　｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜
+　　　　　　＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        print(pos_str)
 
 class BoardValue():
     """盤の決まりきった価値"""
