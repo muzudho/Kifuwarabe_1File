@@ -137,23 +137,42 @@ def string_to_piece(s):
     else:
         return f'{s}' # エラー
 
-sente_none=0 # None 例えば空升
-sente_pawn=1 # ▲歩
-sente_lance=2 # ▲香
-sente_knight=3 # ▲桂
-sente_silver=4 # ▲銀
-sente_bishop=5 # ▲角
-sente_rook=6 # ▲飛
-sente_gold=7 # ▲金
-sente_king=8 # ▲玉
-sente_promoted_pawn=9 # ▲と
-sente_promoted_lance=10 # ▲杏
-sente_promoted_knight=11 # ▲圭
-sente_promoted_silver=12 # ▲全
-sente_horse=13 # ▲馬
-sente_dragon=14 # ▲竜
-sente_nouse=15 # 未使用
-gote_none=16 # 先手の駒に足すと、後手の駒になる
+"""
+定数　　表記　　　　　　　　　　意味
+ーー　　ーーーーーーー　　　　　ーーーーー
+　 0　　cshogi.NONE 　　　　　例えば空升
+　 1　　cshogi.BPAWN　　　　　▲歩
+　 2　　cshogi.BLANCE 　　　　▲香
+　 3　　cshogi.BKNIGHT　　　　▲桂
+　 4　　cshogi.BSILVER　　　　▲銀
+　 5　　cshogi.BBISHOP　　　　▲角
+　 6　　cshogi.BROOK　　　　　▲飛
+　 7　　cshogi.BGOLD　　　　　▲金
+　 8　　cshogi.BKING　　　　　▲玉
+　 9　　cshogi.BPROM_PAWN　　▲と
+　10　　cshogi.BPROM_LANCE 　▲杏
+　11　　cshogi.BPROM_KNIGHT　▲圭
+　12　　cshogi.BPROM_SILVER　▲全
+　13　　cshogi.BPROM_BISHOP　▲馬
+　14　　cshogi.BPROM_ROOK　　▲竜
+　15　　　　　　　　　　　　　　未使用
+　16　　　　　　　　　　　　　　未使用
+　17　　cshogi.PPAWN　　　　　▽歩
+　18　　cshogi.PLANCE 　　　　▽香
+　19　　cshogi.PKNIGHT　　　　▽桂
+　20　　cshogi.PSILVER　　　　▽銀
+　21　　cshogi.PBISHOP　　　　▽角
+　22　　cshogi.PROOK　　　　　▽飛
+　23　　cshogi.PGOLD　　　　　▽金
+　24　　cshogi.PKING　　　　　▽玉
+　25　　cshogi.PPROM_PAWN　　▽と
+　26　　cshogi.PPROM_LANCE 　▽杏
+　27　　cshogi.PPROM_KNIGHT　▽圭
+　28　　cshogi.PPROM_SILVER　▽全
+　29　　cshogi.PPROM_BISHOP　▽馬
+　30　　cshogi.PPROM_ROOK　　▽竜
+　31　　　　　　　　　　　　　　未使用
+"""
 
 _sq_to_jsa_table = [sq // 9 * 10 + 10 + sq % 9 + 1 for sq in range(81)]
 
@@ -262,11 +281,8 @@ class Kifuwarabe():
 
             elif cmd[0] == 'go':
                 """思考開始～最善手返却"""
-
                 (bestmove, alpha) = self.colleague.thought.do_it()
-
                 print(f'info depth 1 seldepth 1 time 1 nodes 1 score cp {alpha} string x')
-
                 print(f'bestmove {bestmove}', flush=True)
 
             elif cmd[0] == 'stop':
@@ -582,7 +598,7 @@ class SenseOfBeauty():
 
         rook_pos = []
         for sq, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
-            if piece == sente_rook or piece == sente_rook + gote_none:
+            if piece == cshogi.BROOK or piece == cshogi.WROOK:
                 rook_pos.append((piece,sq))
 
         if len(rook_pos) == 2:
@@ -591,7 +607,7 @@ class SenseOfBeauty():
                 pass
 
             # 先手、後手の順にする
-            if rook_pos[gote_idx][piece_idx] == sente_rook and rook_pos[sente_idx][piece_idx] == sente_rook + gote_none:
+            if rook_pos[gote_idx][piece_idx] == cshogi.BROOK and rook_pos[sente_idx][piece_idx] == cshogi.WROOK:
                 temp = rook_pos[gote_idx]
                 rook_pos[gote_idx] = rook_pos[sente_idx]
                 rook_pos[sente_idx] = temp
