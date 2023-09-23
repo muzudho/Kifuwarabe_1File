@@ -812,7 +812,11 @@ class MinMax():
                 current_alpha = -checked_beta
                 """盤面の決まりきった評価値"""
 
-            if alpha < current_alpha:
+            if beta < current_alpha:
+                """ベーター・カット"""
+                beta_cutoff = True
+
+            elif alpha < current_alpha:
                 alpha = current_alpha
                 """いわゆるアルファー・アップデート。
                 自分が将来獲得できるであろう最低限の評価値が、増えた"""
@@ -823,10 +827,6 @@ class MinMax():
             elif is_root and current_alpha == alpha:
                 best_move_list.append(move)
                 """評価値が等しい指し手を追加"""
-
-            if beta < current_alpha:
-                """ベーター・カット"""
-                beta_cutoff = True
 
             self.kifuwarabes_subordinate.board.pop()
             """一手戻す"""
