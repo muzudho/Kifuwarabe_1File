@@ -364,11 +364,11 @@ class KifuwarabesColleague():
         )
         """思考"""
 
-        self._min_max = MinMax(
+        self._alpha_beta_pruning = AlphaBetaPruning(
             kifuwarabes_subordinate=kifuwarabes_subordinate,
             kifuwarabes_colleague=self
         )
-        """ミニマックス戦略"""
+        """探索アルゴリズム　アルファーベーター刈り"""
 
     @property
     def board_value(self):
@@ -386,9 +386,9 @@ class KifuwarabesColleague():
         return self._thought
 
     @property
-    def min_max(self):
-        """ミニマックス戦略"""
-        return self._min_max
+    def alpha_beta_pruning(self):
+        """探索アルゴリズム　アルファーベーター刈り"""
+        return self._alpha_beta_pruning
 
 class MaterialsValue():
     """手番から見た駒割評価"""
@@ -654,7 +654,7 @@ class Thought():
                 return (cshogi.move_to_usi(matemove), 0)
 
         # move = self.choice_random(list(self.kifuwarabes_subordinate.board.legal_moves))
-        (current_beta, bestmove_list) = self.kifuwarabes_colleague.min_max.do_it(
+        (current_beta, bestmove_list) = self.kifuwarabes_colleague.alpha_beta_pruning.do_it(
             depth=3,
             alpha = -9999999, # 数ある選択肢の中の、評価値の下限。この下限値は、ベータ値いっぱいまで上げたい"""
             beta = 9999999, # 数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない
@@ -699,8 +699,9 @@ class Thought():
     #     return move
 
 
-class MinMax():
-    """ミニマックス戦略
+class AlphaBetaPruning():
+    """探索アルゴリズム　アルファーベーター刈り
+    ミニマックス戦略
     実装はネガマックス
 
     📖 [アルファベータ探索（alpha-beta pruning）やろうぜ（＾～＾）？](https://crieit.net/drafts/60e6206eaf964)
