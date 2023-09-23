@@ -881,6 +881,8 @@ class AlphaBetaPruning():
                 else:
                     """末端局面評価値"""
 
+                    # どんな手を指したか
+
                     current_beta = self.on_eval_on_leaf()
                     current_alpha = -current_beta
 
@@ -916,6 +918,33 @@ class AlphaBetaPruning():
         else:
             return (alpha, None)
         """自分が将来獲得できるであろう、もっとも良い、最低限の評価値"""
+
+class MoveHelper():
+    @staticmethod
+    def destination(move):
+        """移動先"""
+        return move & 0b00000000_00000000_00000000_01111111
+
+    @staticmethod
+    def source(move):
+        """移動元
+        駒打ちの際には、PieceType + SquareNum - 1"""
+        return move & 0b00000000_00000000_00111111_10000000 >> 7
+
+    @staticmethod
+    def promoted(move):
+        """1 なら成り"""
+        return move & 0b00000000_00000000_01000000_00000000 >> 14
+
+    @staticmethod
+    def piece_type(move):
+        """移動する駒の種類。駒打ちの際には使用しない"""
+        return move & 0b00000000_00001111_00000000_00000000 >> 16
+
+    @staticmethod
+    def captured(move):
+        """取られた駒の種類"""
+        return move & 0b00000000_11110000_00000000_00000000 >> 20
 
 if __name__ == '__main__':
     """コマンドから実行時"""
