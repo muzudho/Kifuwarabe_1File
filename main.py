@@ -758,7 +758,137 @@ class BoardPrint():
 
     def do_it(self):
         """それをする"""
-        print('TODO 盤表示')
+        board = self.kifuwarabes_subordinate.board
+
+        if board.turn == cshogi.BLACK:
+            turn_str = "black"
+        else:
+            turn_str = "white"
+
+        board_str = ""
+
+        a = piece_to_string(board.pieces[cshogi.A1])
+        b = piece_to_string(board.pieces[cshogi.A2])
+        c = piece_to_string(board.pieces[cshogi.A3])
+        d = piece_to_string(board.pieces[cshogi.A4])
+        e = piece_to_string(board.pieces[cshogi.A5])
+        f = piece_to_string(board.pieces[cshogi.A6])
+        g = piece_to_string(board.pieces[cshogi.A7])
+        h = piece_to_string(board.pieces[cshogi.A8])
+        i = piece_to_string(board.pieces[cshogi.A9])
+        board_str += f"""　　９　　８　　７　　６　　５　　４　　３　　２　　１
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　一
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        a = piece_to_string(board.pieces[cshogi.B1])
+        b = piece_to_string(board.pieces[cshogi.B2])
+        c = piece_to_string(board.pieces[cshogi.B3])
+        d = piece_to_string(board.pieces[cshogi.B4])
+        e = piece_to_string(board.pieces[cshogi.B5])
+        f = piece_to_string(board.pieces[cshogi.B6])
+        g = piece_to_string(board.pieces[cshogi.B7])
+        h = piece_to_string(board.pieces[cshogi.B8])
+        i = piece_to_string(board.pieces[cshogi.B9])
+        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　二
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        a = piece_to_string(board.pieces[cshogi.C1])
+        b = piece_to_string(board.pieces[cshogi.C2])
+        c = piece_to_string(board.pieces[cshogi.C3])
+        d = piece_to_string(board.pieces[cshogi.C4])
+        e = piece_to_string(board.pieces[cshogi.C5])
+        f = piece_to_string(board.pieces[cshogi.C6])
+        g = piece_to_string(board.pieces[cshogi.C7])
+        h = piece_to_string(board.pieces[cshogi.C8])
+        i = piece_to_string(board.pieces[cshogi.C9])
+        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　三
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        a = piece_to_string(board.pieces[cshogi.D1])
+        b = piece_to_string(board.pieces[cshogi.D2])
+        c = piece_to_string(board.pieces[cshogi.D3])
+        d = piece_to_string(board.pieces[cshogi.D4])
+        e = piece_to_string(board.pieces[cshogi.D5])
+        f = piece_to_string(board.pieces[cshogi.D6])
+        g = piece_to_string(board.pieces[cshogi.D7])
+        h = piece_to_string(board.pieces[cshogi.D8])
+        i = piece_to_string(board.pieces[cshogi.D9])
+        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　四
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        a = piece_to_string(board.pieces[cshogi.E1])
+        b = piece_to_string(board.pieces[cshogi.E2])
+        c = piece_to_string(board.pieces[cshogi.E3])
+        d = piece_to_string(board.pieces[cshogi.E4])
+        e = piece_to_string(board.pieces[cshogi.E5])
+        f = piece_to_string(board.pieces[cshogi.E6])
+        g = piece_to_string(board.pieces[cshogi.E7])
+        h = piece_to_string(board.pieces[cshogi.E8])
+        i = piece_to_string(board.pieces[cshogi.E9])
+        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　五
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        a = piece_to_string(board.pieces[cshogi.F1])
+        b = piece_to_string(board.pieces[cshogi.F2])
+        c = piece_to_string(board.pieces[cshogi.F3])
+        d = piece_to_string(board.pieces[cshogi.F4])
+        e = piece_to_string(board.pieces[cshogi.F5])
+        f = piece_to_string(board.pieces[cshogi.F6])
+        g = piece_to_string(board.pieces[cshogi.F7])
+        h = piece_to_string(board.pieces[cshogi.F8])
+        i = piece_to_string(board.pieces[cshogi.F9])
+        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　六
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        a = piece_to_string(board.pieces[cshogi.G1])
+        b = piece_to_string(board.pieces[cshogi.G2])
+        c = piece_to_string(board.pieces[cshogi.G3])
+        d = piece_to_string(board.pieces[cshogi.G4])
+        e = piece_to_string(board.pieces[cshogi.G5])
+        f = piece_to_string(board.pieces[cshogi.G6])
+        g = piece_to_string(board.pieces[cshogi.G7])
+        h = piece_to_string(board.pieces[cshogi.G8])
+        i = piece_to_string(board.pieces[cshogi.G9])
+        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　七
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        a = piece_to_string(board.pieces[cshogi.H1])
+        b = piece_to_string(board.pieces[cshogi.H2])
+        c = piece_to_string(board.pieces[cshogi.H3])
+        d = piece_to_string(board.pieces[cshogi.H4])
+        e = piece_to_string(board.pieces[cshogi.H5])
+        f = piece_to_string(board.pieces[cshogi.H6])
+        g = piece_to_string(board.pieces[cshogi.H7])
+        h = piece_to_string(board.pieces[cshogi.H8])
+        i = piece_to_string(board.pieces[cshogi.H9])
+        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　八
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        a = piece_to_string(board.pieces[cshogi.I1])
+        b = piece_to_string(board.pieces[cshogi.I2])
+        c = piece_to_string(board.pieces[cshogi.I3])
+        d = piece_to_string(board.pieces[cshogi.I4])
+        e = piece_to_string(board.pieces[cshogi.I5])
+        f = piece_to_string(board.pieces[cshogi.I6])
+        g = piece_to_string(board.pieces[cshogi.I7])
+        h = piece_to_string(board.pieces[cshogi.I8])
+        i = piece_to_string(board.pieces[cshogi.I9])
+        board_str += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　九
+＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
+"""
+
+        print(f'''[{turn_str}]TODO 盤表示
+
+{board_str}''')
 
 class BoardValue():
     """盤の決まりきった価値"""
