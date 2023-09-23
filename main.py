@@ -254,7 +254,8 @@ class Kifuwarabe():
 
             elif cmd[0] == 'go':
                 """思考開始～最善手返却"""
-                (bestmove, alpha) = self.colleague.thought.do_it()
+                (bestmove, beta) = self.colleague.thought.do_it()
+                alpha = -beta
                 print(f'info depth 1 seldepth 1 time 1 nodes 1 score cp {alpha} string x')
                 print(f'bestmove {bestmove}', flush=True)
 
@@ -781,19 +782,19 @@ class MinMax():
                         # 先手振り飛車
                         if cshogi.BLACK == self.kifuwarabes_subordinate.board.turn:
                             # 相手が振り飛車やってる
-                            current_alpha -= 100
+                            current_alpha -= 10
                         else:
                             # 自分が振り飛車やってる
-                            current_alpha += 100
+                            current_alpha += 10
 
                     elif ranging_rook == 3:
                         # 後手振り飛車
                         if cshogi.WHITE == self.kifuwarabes_subordinate.board.turn:
                             # 相手が振り飛車やってる
-                            current_alpha -= 100
+                            current_alpha -= 10
                         else:
                             # 自分が振り飛車やってる
-                            current_alpha += 100
+                            current_alpha += 10
 
                     elif ranging_rook == 1:
                         # 相居飛車は、やりたいわけではない
