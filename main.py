@@ -155,6 +155,8 @@ sente_dragon=14 # ▲竜
 sente_nouse=15 # 未使用
 gote_none=16 # 先手の駒に足すと、後手の駒になる
 
+_sq_to_jsa_table = [sq // 9 * 10 + 10 + sq % 9 + 1 for sq in range(81)]
+
 def sq_to_jsa(sq):
     """
     スクウェア（Square, sq；升番号）
@@ -204,7 +206,8 @@ def sq_to_jsa(sq):
     ｜９９｜８９｜７９｜６９｜５９｜４９｜３９｜２９｜１９｜　九
     ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
     """
-    return sq // 9 * 10 + 10 + sq % 9 + 1
+    return _sq_to_jsa_table[sq]
+    # return sq // 9 * 10 + 10 + sq % 9 + 1
 
 def jsa_to_sq(jsa):
     """逆関数
