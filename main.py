@@ -11,7 +11,7 @@ test_case_1_1 = "position sfen 4r4/4l4/3nlnb2/3kps3/3g1G3/3SPK3/2BNLN3/4L4/4R4 b
 """Ｎｏ．１．１　変形。３五金。posval 35 で局面評価値確認"""
 
 test_case_2 = "position sfen lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1R5/LNSGKGSNL b - 1"
-"""Ｎｏ．２　初手、四間飛車"""
+"""Ｎｏ．２　初手、四間飛車。振り飛車しているかどうかの確認"""
 
 test_case_3 = "position sfen lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B7/LNSGKGSNL b R 1"
 """Ｎｏ．３　平手初期局面から、先手が飛車を駒台に乗せた局面"""
@@ -2160,12 +2160,14 @@ class StaticExchangeEvaluation():
 
         # dst_sq に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
         attacker_list = []
-        print(f'[DEBUG] len(self.kifuwarabes_subordinate.board.pieces): {len(self.kifuwarabes_subordinate.board.pieces)}')
+
+        # print(f'[DEBUG] len(self.kifuwarabes_subordinate.board.pieces): {len(self.kifuwarabes_subordinate.board.pieces)}')
         for sq, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
+
             if piece == cshogi.NONE:
                 continue
 
-            print(f'[DEBUG] sq jsa: {convert_sq_to_jsa(sq)}, piece: {piece_to_string(piece)}')
+            # print(f'[DEBUG] sq jsa: {convert_sq_to_jsa(sq)}, piece: {piece_to_string(piece)}')
 
             # その駒について、利いている升番号のリスト
             control_sq_list = self.kifuwarabes_colleague.control.sq_list_by(
@@ -2173,28 +2175,28 @@ class StaticExchangeEvaluation():
                 piece = piece)
 
             # その利きを表示
-            print(f'[DEBUG] dst jsa:{convert_sq_to_jsa(dst_sq)} control_list jsa:{convert_sq_to_jsa_for_list(control_sq_list)}')
-            self.kifuwarabes_colleague.check_board_print.set_by_sq_list(control_sq_list) # [DEBUG]
-            self.kifuwarabes_colleague.check_board_print.do_it() # [DEBUG]
+            # print(f'[DEBUG] dst jsa:{convert_sq_to_jsa(dst_sq)} control_list jsa:{convert_sq_to_jsa_for_list(control_sq_list)}')
+            # self.kifuwarabes_colleague.check_board_print.set_by_sq_list(control_sq_list) # [DEBUG]
+            # self.kifuwarabes_colleague.check_board_print.do_it() # [DEBUG]
 
             if dst_sq in control_sq_list:
-                print(f'[DEBUG] {sq_to_jsa(dst_sq)}へ利かしている')
+                # print(f'[DEBUG] {sq_to_jsa(dst_sq)}へ利かしている')
                 # 利かしている駒なら追加
                 attacker_list.append(piece)
-            else:
-                print(f'[DEBUG] {sq_to_jsa(dst_sq)} 届いてない')
+            # else:
+            #     print(f'[DEBUG] {sq_to_jsa(dst_sq)} 届いてない')
 
-        print(f'[DEBUG] len(attacker_list): {len(attacker_list)}')
-        for piece in attacker_list:
-            print(f'[DEBUG] attacker_piece: {piece_to_string(piece)}')
+        # print(f'[DEBUG] len(attacker_list): {len(attacker_list)}')
+        # for piece in attacker_list:
+        #     print(f'[DEBUG] attacker_piece: {piece_to_string(piece)}')
 
         if len(attacker_list) < 1:
             """利いている駒がない"""
             return 0
 
-        # 手番（味方）の駒を入れる friend_queue、 相手番の駒を入れる opponent_queue を作成
-        friend_queue = []
-        opponent_queue = []
+        # 手番（味方）の駒を入れる friend_list、 相手番の駒を入れる opponent_list を作成
+        friend_list = []
+        opponent_list = []
 
         for piece in attacker_list:
             # マテリアル・バリュー（Material Value；駒の価値）を求める
@@ -2203,56 +2205,68 @@ class StaticExchangeEvaluation():
 
             if self.kifuwarabes_subordinate.board.turn == cshogi.BLACK:
                 if piece < 16:
-                    # attacker_list へ味方の駒を入れる
-                    friend_queue.append([mat, pt])
-
-                    # TODO attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
-                     # 第一引数の昇順
-                    friend_queue.sort()
+                    # 味方の駒
+                    friend_list.append([mat, pt])
 
                 else:
-                    # attacker_list へ相手の駒を入れる
-                    opponent_queue.append([mat, pt])
-
-                    # TODO attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
-                    opponent_queue.sort()
+                    # 相手の駒
+                    opponent_list.append([mat, pt])
             else:
                 if 16 <= piece:
-                    friend_queue.append([mat, pt])
-                    friend_queue.sort()
+                    friend_list.append([mat, pt])
                 else:
-                    opponent_queue.append([mat, pt])
-                    opponent_queue.sort()
+                    opponent_list.append([mat, pt])
 
-        print(f'[DEBUG] len(friend_queue): {len(friend_queue)}')
-        for mat_pc in friend_queue:
-            print(f'[DEBUG] friend_queue: {piece_to_string(mat_pc[1])}')
+        # 味方の駒を、価値の安い順に並べ替え
+        # 第一引数の昇順
+        friend_list.sort()
 
-        print(f'[DEBUG] len(opponent_queue): {len(opponent_queue)}')
-        for mat_pc in opponent_queue:
-            print(f'[DEBUG] opponent_queue: {piece_to_string(mat_pc[1])}')
+        # 相手の駒を、価値の安い順に並べ替え
+        opponent_list.sort()
+
+        # print(f'[DEBUG] len(friend_list): {len(friend_list)}')
+        # for mat_pc in friend_list:
+        #     print(f'[DEBUG] mat_pc: {piece_to_string(mat_pc[1])}')
+
+        # print(f'[DEBUG] len(opponent_list): {len(opponent_list)}')
+        # for mat_pc in opponent_list:
+        #     print(f'[DEBUG] mat_pc: {piece_to_string(mat_pc[1])}')
 
         # 取り合いになる場所に置かれている駒は、取り返される
         dst_pt = PieceTypeHelper.from_piece(dst_pc)
         mat = self.kifuwarabes_subordinate.materials_value.piece_type_values[dst_pt]
         value = mat
-        print(f'[DEBUG] opponent: {-value}')
+        # print(f'[DEBUG] opponent: {-value}')
 
-        # opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
-        while 0<len(opponent_queue):
+        # opponent_list 、または friend_list のどちらかのキューが空になるまで、以下を繰り返す
+        i_opponent = 0
+        i_friend = 0
+        while i_opponent < len(opponent_list):
             # 取り返しにきた相手の駒を、さらに取る
             # opponent_queue の先頭の駒をポップし、その駒の価値（交換値なので２倍）を　評価値に加点。
-            (mat, _piece_type) = opponent_queue.pop()
-            value += 2*mat
-            print(f'[DEBUG] friend: {value}')
+            (mat, piece_type) = opponent_list[i_opponent]
+            i_opponent += 1
 
-            if len(friend_queue) < 1:
+            if piece_type == cshogi.KING:
+                """玉は、駒の取り合いに参加しない"""
+                break
+
+            value += 2*mat
+            # print(f'[DEBUG] friend: {value}')
+
+            if len(friend_list) <= i_friend:
                 break
 
             # friend_queue の先頭の駒をポップし、その駒の価値（交換値なので２倍）を　評価値から減点。
-            (mat, piece_type) = friend_queue.pop()
+            (mat, piece_type) = friend_list[i_friend]
+            i_friend += 1
+
+            if piece_type == cshogi.KING:
+                """玉は、駒の取り合いに参加しない"""
+                break
+
             value -= 2*mat
-            print(f'[DEBUG] opponent: {-value}')
+            # print(f'[DEBUG] opponent: {-value}')
 
         return value
 
@@ -2268,7 +2282,7 @@ class SqHelper():
     @staticmethod
     def rank(sq):
         """段"""
-        print(f'[rank] sq: {sq}, sq%9: {sq%9}, sq%9+1: {sq%9+1}')
+        # print(f'[rank] sq: {sq}, sq%9: {sq%9}, sq%9+1: {sq%9+1}')
         return sq % 9 + 1
 
 
