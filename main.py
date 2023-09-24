@@ -2043,17 +2043,17 @@ class StaticExchangeEvaluation():
         # opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
         while 0<len(opponent_queue):
             # 取り返しにきた相手の駒を、さらに取る
-            # opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
+            # opponent_queue の先頭の駒をポップし、その駒の価値（交換値なので２倍）を　評価値に加点。
             (mat, _piece_type) = opponent_queue.pop()
-            value += mat
+            value += 2*mat
             # print(f'friend: {value}')
 
             if len(friend_queue) < 1:
                 break
 
-            # friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
+            # friend_queue の先頭の駒をポップし、その駒の価値（交換値なので２倍）を　評価値から減点。
             (mat, piece_type) = friend_queue.pop()
-            value -= mat
+            value -= 2*mat
             # print(f'opponent: {-value}')
 
         return value
