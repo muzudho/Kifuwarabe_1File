@@ -510,10 +510,10 @@ class Kifuwarabe():
                     except Exception as e:
                         print(f'例外：　{e}')
 
-            elif cmd[0] == 'debug':
-                """独自拡張。デバッグ
+            elif cmd[0] == 'seetest':
+                """SEEのテスト
                 example: ５五に銀を打った時
-                   code: debug S*5e
+                   code: seetest S*5e
                 """
 
                 # 指し手
@@ -538,8 +538,8 @@ class Kifuwarabe():
                 self.colleague.check_board_print.do_it()
 
                 # SEE を調べる
-                friend_value = self.colleague.static_exchange_evaluation.do_it(dst_sq)
-                print(f'[DEBUG] friend_value:{friend_value}')
+                see_value = self.colleague.static_exchange_evaluation.do_it(dst_sq)
+                print(f'[DEBUG] see_value:{see_value}')
 
             elif cmd[0] == 'sqtest':
                 """独自拡張。デバッグ。マス番号の変換"""
@@ -583,14 +583,21 @@ class Kifuwarabe():
                         # 移動先
                         dst_sq = convert_jsa_to_sq(int(cmd[1]))
 
+                        # 手番をひっくり返す（一手指したつもり）
+                        self.subordinate.board.push_pass()
+
                         print('局面評価値内訳：')
                         value_list = self.colleague.position_evaluation.do_it(move_dst_sq=dst_sq)
                         for index, value in enumerate(value_list):
                             print(f'　　（{index:2}） {value:10}')
                         print(f'　　（計） {sum(value_list):10}')
 
+                        # 手番をひっくり返す（一手指したつもり）
+                        self.subordinate.board.pop_pass()
+
                     except Exception as e:
                         print(f'例外：　{e}')
+                        raise e
 
             elif cmd[0] == 'pos':
                 """独自拡張。局面表示"""
