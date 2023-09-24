@@ -4,8 +4,11 @@ import random
 
 # テストケース
 
-sfen_1 = "position sfen 4r4/4l4/3nlnb2/3kps3/3g1G3/3SPK3/2BNLN3/4L4/4R4 b GS8Pgs8p 1"
+test_case_1 = "position sfen 4r4/4l4/3nlnb2/3kps3/3g1G3/3SPK3/2BNLN3/4L4/4R4 b GS8Pgs8p 1"
 """Ｎｏ．１　駒の取り合い。次の一手は５五銀 S*5e """
+
+test_case_2 = "position sfen lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1R5/LNSGKGSNL b - 1"
+"""Ｎｏ．２　初手、四間飛車"""
 
 # 📖 [_cshogi.pyx](https://github.com/TadaoYamaoka/cshogi/blob/master/cshogi/_cshogi.pyx)
 
@@ -466,14 +469,15 @@ class Kifuwarabe():
 
             elif cmd[0] == 'debug':
                 """独自拡張。デバッグ
-                example: debug S*5e
+                example: ５五に銀を打った時
+                   code: debug S*5e
                 """
 
                 # 指し手
                 move_str = cmd[1]
 
                 # 移動先
-                dst_sq = UsiHelper.destination_sq(move_str)
+                dst_sq = UsiMoveHelper.destination_sq(move_str)
 
                 # 一手指す
                 self.subordinate.board.push_usi(move_str)
@@ -522,6 +526,18 @@ class Kifuwarabe():
 
                 piece_at82 = self.subordinate.board.pieces[cshogi.B8]
                 print(f'８二の駒：{piece_to_string(piece_at82)}')
+
+            elif cmd[0] == 'posval':
+                """独自拡張。局面評価表示
+                example: 着手が４三だったとき
+                   code: posval 43
+                """
+
+                # 移動先
+                dst_sq = convert_jsa_to_sq(int(cmd[1]))
+
+                value = self.colleague.position_evaluation.do_it(move_dst_sq=dst_sq)
+                print(f'局面評価値：　{value}')
 
             elif cmd[0] == 'pos':
                 """独自拡張。局面表示"""
@@ -616,10 +632,16 @@ class KifuwarabesColleague():
         )
         """思考"""
 
+        self._position_evaluation = PositionEvaluation(
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
+            kifuwarabes_colleague=self
+        )
+        """局面評価"""
+
         self._alpha_beta_pruning = AlphaBetaPruning(
             kifuwarabes_subordinate=kifuwarabes_subordinate,
             kifuwarabes_colleague=self,
-            on_eval_on_leaf=self.on_eval_on_leaf
+            on_eval_on_leaf=self.position_evaluation.do_it
         )
         """探索アルゴリズム　アルファーベーター刈り"""
 
@@ -665,6 +687,11 @@ class KifuwarabesColleague():
         return self._thought
 
     @property
+    def position_evaluation(self):
+        """局面評価"""
+        return self._position_evaluation
+
+    @property
     def alpha_beta_pruning(self):
         """探索アルゴリズム　アルファーベーター刈り"""
         return self._alpha_beta_pruning
@@ -674,49 +701,6 @@ class KifuwarabesColleague():
         """評価関数　エス・イー・イー（Static Exchange Evaluation；静的駒交換評価）"""
         return self._static_exchange_evaluation
 
-    def on_eval_on_leaf(self, move):
-        """末端局面での評価値計算"""
-
-        # 手番から見た駒割評価
-        value = self.kifuwarabes_subordinate.materials_value.eval(
-            board=self.kifuwarabes_subordinate.board)
-
-        # 駒の取り合いを解消したい。SEE（Static Exchange Evaluation）
-        value += self.static_exchange_evaluation.do_it(MoveHelper.destination(move))
-
-        ranging_rook = self.sense_of_beauty.check_ranging_rook()
-
-        if ranging_rook == 2:
-            # 先手振り飛車
-            if cshogi.BLACK == self.kifuwarabes_subordinate.board.turn:
-                # 相手が振り飛車やってる。しゃーない
-                pass
-            else:
-                # 自分が振り飛車やってる。えらいぞ
-                value += 10
-
-        elif ranging_rook == 3:
-            # 後手振り飛車
-            if cshogi.WHITE == self.kifuwarabes_subordinate.board.turn:
-                # 相手が振り飛車やってる。しゃーない
-                pass
-            else:
-                # 自分が振り飛車やってる。えらいぞ
-                value += 10
-
-        elif ranging_rook == 1:
-            # 相居飛車やってる。さっさと飛車振れだぜ
-            value -= 10
-
-        elif ranging_rook == 4:
-            # 相振り飛車やってる。しゃーない
-            pass
-
-        else:
-            # 何でもない
-            pass
-
-        return value
 
 class MaterialsValue():
     """手番から見た駒割評価"""
@@ -1709,6 +1693,86 @@ class Thought():
     #     return move
 
 
+class PositionEvaluation():
+    """局面評価
+    末端局面を評価する"""
+
+    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
+        """初期化
+
+        Parameters
+        ----------
+        kifuwarabes_subordinate
+            きふわらべの部下
+        """
+
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
+
+        self._kifuwarabes_colleague = kifuwarabes_colleague
+        """きふわらべの同僚"""
+
+    @property
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
+
+    @property
+    def kifuwarabes_colleague(self):
+        """きふわらべの同僚"""
+        return self._kifuwarabes_colleague
+
+
+    def do_it(self, move_dst_sq):
+        """末端局面での評価値計算
+        Parameters
+        ----------
+        move_dst_sq : int
+            着手移動先升番号 sq
+        """
+
+        # 手番から見た駒割評価
+        value = self.kifuwarabes_subordinate.materials_value.eval(
+            board=self.kifuwarabes_subordinate.board)
+
+        # 駒の取り合いを解消したい。SEE（Static Exchange Evaluation）
+        value += self.kifuwarabes_colleague.static_exchange_evaluation.do_it(move_dst_sq)
+
+        ranging_rook = self._kifuwarabes_colleague.sense_of_beauty.check_ranging_rook()
+
+        if ranging_rook == 2:
+            # 先手振り飛車
+            if cshogi.BLACK == self.kifuwarabes_subordinate.board.turn:
+                # 相手が振り飛車やってる。しゃーない
+                pass
+            else:
+                # 自分が振り飛車やってる。えらいぞ
+                value += 10
+
+        elif ranging_rook == 3:
+            # 後手振り飛車
+            if cshogi.WHITE == self.kifuwarabes_subordinate.board.turn:
+                # 相手が振り飛車やってる。しゃーない
+                pass
+            else:
+                # 自分が振り飛車やってる。えらいぞ
+                value += 10
+
+        elif ranging_rook == 1:
+            # 相居飛車やってる。さっさと飛車振れだぜ
+            value -= 10
+
+        elif ranging_rook == 4:
+            # 相振り飛車やってる。しゃーない
+            pass
+
+        else:
+            # 何でもない
+            pass
+
+        return value
+
+
 class AlphaBetaPruning():
     """探索アルゴリズム　アルファーベーター刈り
     ミニマックス戦略
@@ -1793,7 +1857,7 @@ class AlphaBetaPruning():
 
                     # どんな手を指したか
 
-                    current_beta = self.on_eval_on_leaf(move)
+                    current_beta = self.on_eval_on_leaf(move_dst_sq=MoveHelper.destination(move))
                     current_alpha = -current_beta
 
             else:
@@ -1969,6 +2033,7 @@ class StaticExchangeEvaluation():
 
         return value
 
+
 class MoveHelper():
 
     @staticmethod
@@ -2011,7 +2076,7 @@ class PieceTypeHelper():
     def from_piece(piece):
         return piece % 16
 
-class UsiHelper():
+class UsiMoveHelper():
 
     _drop_list = ["R*","B*","G*","S*","N*","L*","P*"]
     """打"""
