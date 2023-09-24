@@ -678,47 +678,45 @@ class KifuwarabesColleague():
         """末端局面での評価値計算"""
 
         # 手番から見た駒割評価
-        current_beta = self.kifuwarabes_subordinate.materials_value.eval(
+        value = self.kifuwarabes_subordinate.materials_value.eval(
             board=self.kifuwarabes_subordinate.board)
 
-        # TODO 駒の取り合いを解消したい。SEE（Static Exchange Evaluation）
-        current_beta += self.static_exchange_evaluation.do_it(MoveHelper.destination(move))
-
-        current_alpha = -current_beta
+        # 駒の取り合いを解消したい。SEE（Static Exchange Evaluation）
+        value += self.static_exchange_evaluation.do_it(MoveHelper.destination(move))
 
         ranging_rook = self.sense_of_beauty.check_ranging_rook()
 
         if ranging_rook == 2:
             # 先手振り飛車
             if cshogi.BLACK == self.kifuwarabes_subordinate.board.turn:
-                # 相手が振り飛車やってる
-                current_alpha -= 10
+                # 相手が振り飛車やってる。しゃーない
+                pass
             else:
-                # 自分が振り飛車やってる
-                current_alpha += 10
+                # 自分が振り飛車やってる。えらいぞ
+                value += 10
 
         elif ranging_rook == 3:
             # 後手振り飛車
             if cshogi.WHITE == self.kifuwarabes_subordinate.board.turn:
-                # 相手が振り飛車やってる
-                current_alpha -= 10
+                # 相手が振り飛車やってる。しゃーない
+                pass
             else:
-                # 自分が振り飛車やってる
-                current_alpha += 10
+                # 自分が振り飛車やってる。えらいぞ
+                value += 10
 
         elif ranging_rook == 1:
-            # 相居飛車は、やりたいわけではない
-            pass
+            # 相居飛車やってる。さっさと飛車振れだぜ
+            value -= 10
 
         elif ranging_rook == 4:
-            # 相振り飛車は、やりたいわけではない
+            # 相振り飛車やってる。しゃーない
             pass
 
         else:
             # 何でもない
             pass
 
-        return current_alpha
+        return value
 
 class MaterialsValue():
     """手番から見た駒割評価"""
