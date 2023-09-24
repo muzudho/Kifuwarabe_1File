@@ -446,7 +446,7 @@ class Kifuwarabe():
 
             if cmd[0] == 'usi':
                 """USIエンジン握手"""
-                print('id name Kifuwarabe1File')
+                print('id name Kifuwarabe1FileV1')
                 print('usiok', flush=True)
 
             elif cmd[0] == 'isready':
