@@ -48,4 +48,28 @@
 「　👆　どっちも１０点なんだったら、飛車取らなくてもよくない？」  
 
 ![ohkina-hiyoko-futsu2.png](https://crieit.now.sh/upload_images/96fb09724c3ce40ee0861a0fd1da563d61daf8a09d9bc.png)  
-「　うーん、おかしいわねえ」  
+「　うーん、おかしいわねえ」
+
+# そこで交換値だぜ
+
+![kifuwarabe-futsu.png](https://crieit.now.sh/upload_images/beaf94b260ae2602ca8cf7f5bbc769c261daf8686dbda.png)  
+「　そこで交換値だぜ」  
+
+![202309_shogi_24-1657--see4-o2o0.png](https://crieit.now.sh/upload_images/f1022b237df91dd0ff58dc604825f231650fef6762770.png)  
+
+![kifuwarabe-futsu.png](https://crieit.now.sh/upload_images/beaf94b260ae2602ca8cf7f5bbc769c261daf8686dbda.png)  
+「　👆　相手は　飛車がいなくなって　ー１０点　になったので、  
+トータルで見れば　２０点の移動があるぜ」  
+
+![ohkina-hiyoko-futsu2.png](https://crieit.now.sh/upload_images/96fb09724c3ce40ee0861a0fd1da563d61daf8a09d9bc.png)  
+「　１モリシタと同じ理屈ねえ」  
+
+![202309_shogi_24-1715--see-o3o0.png](https://crieit.now.sh/upload_images/a84b1c1bfccb1f1a746d7ff139b4b499650ff0504d8af.png)  
+
+![ohkina-hiyoko-futsu2.png](https://crieit.now.sh/upload_images/96fb09724c3ce40ee0861a0fd1da563d61daf8a09d9bc.png)  
+「　👆　じゃあ　ＳＥＥ　にも交換値を盛り込むべきなんじゃない？」  
+
+![202309_shogi_24-1715--see-o3o0.png](https://crieit.now.sh/upload_images/a84b1c1bfccb1f1a746d7ff139b4b499650ff0504d8af.png)  ![202309_shogi_24-1657--see4-o2o0.png](https://crieit.now.sh/upload_images/f1022b237df91dd0ff58dc604825f231650fef6762770.png)  
+
+![kifuwarabe-futsu.png](https://crieit.now.sh/upload_images/beaf94b260ae2602ca8cf7f5bbc769c261daf8686dbda.png)  
+「　👆　話しが　振り出しに戻った……」  
