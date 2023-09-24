@@ -10,6 +10,9 @@ test_case_1 = "position sfen 4r4/4l4/3nlnb2/3kps3/3g1G3/3SPK3/2BNLN3/4L4/4R4 b G
 test_case_2 = "position sfen lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1R5/LNSGKGSNL b - 1"
 """Ｎｏ．２　初手、四間飛車"""
 
+test_case_3 = "position sfen lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B7/LNSGKGSNL b R 1"
+"""Ｎｏ．３　平手初期局面から、先手が飛車を駒台に乗せた局面"""
+
 # 📖 [_cshogi.pyx](https://github.com/TadaoYamaoka/cshogi/blob/master/cshogi/_cshogi.pyx)
 
 """
@@ -466,6 +469,14 @@ class Kifuwarabe():
             elif cmd[0] == 'quit':
                 """終了"""
                 break
+
+            # 以下、独自拡張
+            elif cmd[0] == 'do':
+                """一手指す
+                example: ７六歩
+                   code: do 7g7f
+                """
+                self.subordinate.board.push_usi(cmd[1])
 
             elif cmd[0] == 'debug':
                 """独自拡張。デバッグ
