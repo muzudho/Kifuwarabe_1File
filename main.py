@@ -478,6 +478,12 @@ class Kifuwarabe():
                 """
                 self.subordinate.board.push_usi(cmd[1])
 
+            elif cmd[0] == 'undo':
+                """一手戻す
+                   code: undo
+                """
+                self.subordinate.board.pop()
+
             elif cmd[0] == 'debug':
                 """独自拡張。デバッグ
                 example: ５五に銀を打った時
@@ -1005,7 +1011,7 @@ class PositionPrint():
         else:
             turn_str = "white"
 
-        text = f'''[{move_number_str} moves / {turn_str}]
+        text = f'''[next {move_number_str} moves / {turn_str}]
 
 '''
 
