@@ -682,7 +682,7 @@ class KifuwarabesColleague():
             board=self.kifuwarabes_subordinate.board)
 
         # TODO 駒の取り合いを解消したい。SEE（Static Exchange Evaluation）
-        current_beta += self.static_exchange_evaluation.do_it(move)
+        current_beta += self.static_exchange_evaluation.do_it(MoveHelper.destination(move))
 
         current_alpha = -current_beta
 
@@ -1868,19 +1868,19 @@ class StaticExchangeEvaluation():
             駒の取り合いが発生する升
         """
 
-        print(f'駒の取り合いが発生する升: {convert_sq_to_jsa(dst_sq)}')
+        # print(f'駒の取り合いが発生する升: {convert_sq_to_jsa(dst_sq)}')
 
         # その場所にある駒の種類
         dst_pc = self.kifuwarabes_subordinate.board.pieces[dst_sq]
 
         # dst_sq に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
         attacker_list = []
-        print(f'len(self.kifuwarabes_subordinate.board.pieces): {len(self.kifuwarabes_subordinate.board.pieces)}')
+        # print(f'len(self.kifuwarabes_subordinate.board.pieces): {len(self.kifuwarabes_subordinate.board.pieces)}')
         for sq, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
             if piece == cshogi.NONE:
                 continue
 
-            print(f'sq jsa: {convert_sq_to_jsa(sq)}, piece: {piece_to_string(piece)}')
+            # print(f'sq jsa: {convert_sq_to_jsa(sq)}, piece: {piece_to_string(piece)}')
 
             # その駒について、利いている升番号のリスト
             control_sq_list = self.kifuwarabes_colleague.control.sq_list_by(
@@ -1888,20 +1888,20 @@ class StaticExchangeEvaluation():
                 piece = piece)
 
             # その利きを表示
-            print(f'[DEBUG] dst jsa:{convert_sq_to_jsa(dst_sq)} control_list jsa:{convert_sq_to_jsa_for_list(control_sq_list)}')
-            self.kifuwarabes_colleague.check_board_print.set_by_sq_list(control_sq_list)
-            self.kifuwarabes_colleague.check_board_print.do_it()
+            # print(f'[DEBUG] dst jsa:{convert_sq_to_jsa(dst_sq)} control_list jsa:{convert_sq_to_jsa_for_list(control_sq_list)}')
+            # self.kifuwarabes_colleague.check_board_print.set_by_sq_list(control_sq_list)
+            # self.kifuwarabes_colleague.check_board_print.do_it()
 
             if dst_sq in control_sq_list:
-                print(f'[DEBUG] {sq_to_jsa(dst_sq)}へ利かしている')
+                # print(f'[DEBUG] {sq_to_jsa(dst_sq)}へ利かしている')
                 # 利かしている駒なら追加
                 attacker_list.append(piece)
-            else:
-                print(f'[DEBUG] {sq_to_jsa(dst_sq)} 届いてない')
+            # else:
+            #     print(f'[DEBUG] {sq_to_jsa(dst_sq)} 届いてない')
 
-        print(f'len(attacker_list): {len(attacker_list)}')
-        for piece in attacker_list:
-            print(f'attacker_piece: {piece_to_string(piece)}')
+        # print(f'len(attacker_list): {len(attacker_list)}')
+        # for piece in attacker_list:
+        #     print(f'attacker_piece: {piece_to_string(piece)}')
 
         if len(attacker_list) < 1:
             """利いている駒がない"""
@@ -1939,19 +1939,19 @@ class StaticExchangeEvaluation():
                     opponent_queue.append([mat, pt])
                     opponent_queue.sort()
 
-        print(f'len(friend_queue): {len(friend_queue)}')
-        for mat_pc in friend_queue:
-            print(f'friend_queue: {piece_to_string(mat_pc[1])}')
+        # print(f'len(friend_queue): {len(friend_queue)}')
+        # for mat_pc in friend_queue:
+        #     print(f'friend_queue: {piece_to_string(mat_pc[1])}')
 
-        print(f'len(opponent_queue): {len(opponent_queue)}')
-        for mat_pc in opponent_queue:
-            print(f'opponent_queue: {piece_to_string(mat_pc[1])}')
+        # print(f'len(opponent_queue): {len(opponent_queue)}')
+        # for mat_pc in opponent_queue:
+        #     print(f'opponent_queue: {piece_to_string(mat_pc[1])}')
 
         # 取り合いになる場所に置かれている駒は、取り返される
         dst_pt = PieceTypeHelper.from_piece(dst_pc)
         mat = self.kifuwarabes_subordinate.materials_value.piece_type_values[dst_pt]
         value = mat
-        print(f'opponent: {-value}')
+        # print(f'opponent: {-value}')
 
         # opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
         while 0<len(opponent_queue):
@@ -1959,7 +1959,7 @@ class StaticExchangeEvaluation():
             # opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
             (mat, _piece_type) = opponent_queue.pop()
             value += mat
-            print(f'friend: {value}')
+            # print(f'friend: {value}')
 
             if len(friend_queue) < 1:
                 break
@@ -1967,7 +1967,7 @@ class StaticExchangeEvaluation():
             # friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
             (mat, piece_type) = friend_queue.pop()
             value -= mat
-            print(f'opponent: {-value}')
+            # print(f'opponent: {-value}')
 
         return value
 
