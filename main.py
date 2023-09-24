@@ -37,7 +37,10 @@ def rank_string_to_number(file_str):
     else:
         raise Exception(f'"{file_str}" is not file')
 
-_sq_to_jsa_table = [sq // 9 * 10 + 10 + sq % 9 + 1 for sq in range(81)]
+def convert_sq_to_jsa(sq):
+    return sq // 9 * 10 + 10 + sq % 9 + 1
+
+_sq_to_jsa_table = [convert_sq_to_jsa(sq) for sq in range(81)]
 
 def sq_to_jsa(sq):
     """
@@ -115,7 +118,13 @@ def sq_to_jsa(sq):
 
     return _sq_to_jsa_table[sq]
 
-_jsa_to_sq_table = [(jsa//10-1) * 9 + jsa % 10 - 1 for jsa in range(100)]
+def convert_sq_to_jsa_for_list(sq_list):
+    return [convert_sq_to_jsa(sq) for sq in sq_list]
+
+def convert_jsa_to_sq(jsa):
+    return (jsa//10-1) * 9 + jsa % 10 - 1
+
+_jsa_to_sq_table = [convert_jsa_to_sq(jsa) for jsa in range(100)]
 
 def jsa_to_sq(jsa):
     """逆関数
@@ -212,37 +221,37 @@ south_south_west = 11
 
 _piece_to_string_array = [
     "　　", # ０．　空升
-    "＿歩", # 1
-    "＿香", # 2
-    "＿桂", # 3
-    "＿銀", # 4
-    "＿角", # 5
-    "＿飛", # 6
-    "＿金", # 7
-    "＿玉", # 8
-    "＿と", # 9
-    "＿杏", # 10
-    "＿圭", # 11
-    "＿全", # 12
-    "＿馬", # 13
-    "＿竜", # 14
-    "１５", # 15. 未使用
-    "１６", # 16. 未使用
-    "ｖ歩", # 17
-    "ｖ香", # 18
-    "ｖ桂", # 19
-    "ｖ銀", # 20
-    "ｖ角", # 21
-    "ｖ飛", # 22
-    "ｖ金", # 23
-    "ｖ玉", # 24
-    "ｖと", # 25
-    "ｖ杏", # 26
-    "ｖ圭", # 27
-    "ｖ全", # 28
-    "ｖ馬", # 29
-    "ｖ竜", # 30
-    "３１", # 31. 未使用
+    "＿歩", # １．　piece_type でも使用可能
+    "＿香", # ２．
+    "＿桂", # ３．
+    "＿銀", # ４．
+    "＿角", # ５．
+    "＿飛", # ６．
+    "＿金", # ７．
+    "＿玉", # ８．
+    "＿と", # ９．
+    "＿杏", # １０．
+    "＿圭", # １１．
+    "＿全", # １２．
+    "＿馬", # １３．
+    "＿竜", # １４．
+    "１５", # １５. 未使用
+    "１６", # １６. 未使用
+    "ｖ歩", # １７．
+    "ｖ香", # １８．
+    "ｖ桂", # １９．
+    "ｖ銀", # ２０．
+    "ｖ角", # ２１．
+    "ｖ飛", # ２２．
+    "ｖ金", # ２３．
+    "ｖ玉", # ２４．
+    "ｖと", # ２５．
+    "ｖ杏", # ２６．
+    "ｖ圭", # ２７．
+    "ｖ全", # ２８．
+    "ｖ馬", # ２９．
+    "ｖ竜", # ３０．
+    "３１", # ３１. 未使用
     ]
 
 def piece_to_string(pc):
@@ -275,6 +284,13 @@ def piece_to_string(pc):
         return _piece_to_string_array[pc]
     else:
         return f'{pc}' # エラー
+
+def piece_type_to_string(pt):
+    """ピースタイプ（Piece Type, pt；駒種類）を文字列に変換"""
+    if 0 <= pt and pt < 16:
+        return _piece_to_string_array[pt]
+    else:
+        return f'{pt}' # エラー
 
 _number_of_hand_to_string_list = [
     "　　", #  0
@@ -464,13 +480,13 @@ class Kifuwarabe():
 
                 # 差した駒をピックアップ
                 piece = self.subordinate.board.pieces[dst_sq]
-                print(f'[DEBUG] dst_sq:{dst_sq} piece:{piece}')
+                print(f'[DEBUG] dst jsa:{convert_sq_to_jsa(dst_sq)} piece:{piece_to_string(piece)}')
 
                 # その駒の利きを取得
                 sq_list = self.colleague.control.sq_list_by(dst_sq, piece)
 
                 # その利きを表示
-                print(f'[DEBUG] sq_list:{sq_list}')
+                print(f'[DEBUG] control_list jsa:{convert_sq_to_jsa_for_list(sq_list)}')
                 self.colleague.check_board_print.set_by_sq_list(sq_list)
                 self.colleague.check_board_print.do_it()
 
@@ -482,7 +498,7 @@ class Kifuwarabe():
                 """独自拡張。デバッグ。マス番号の変換"""
                 for sq, piece in enumerate(self.subordinate.board.pieces):
                     jsa = sq_to_jsa(sq)
-                    print(f'升：{jsa}　駒：{piece_to_string(piece)}　sq：{jsa_to_sq(jsa)}')
+                    print(f'升：{jsa}　駒：{piece_to_string(piece)}　sq jsa：{jsa_to_sq(jsa)}')
 
             elif cmd[0] == 'beauty':
                 """独自拡張。美意識を返す"""
@@ -1408,7 +1424,7 @@ class Control():
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜＊＊｜＊＊｜＊＊｜
             #　　　　　＋ーー＋ーー＋ーー＋
-            [east, south_east, north, south, west, south_east],
+            [east, south_east, north, south, west, south_west],
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜＊＊｜＊＊｜＊＊｜
             #　　　　　＋ーー＋ーー＋ーー＋
@@ -1424,7 +1440,7 @@ class Control():
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜＊＊｜＊＊｜＊＊｜
             #　　　　　＋ーー＋ーー＋ーー＋
-            [east, south_east, north, south, west, south_east],
+            [east, south_east, north, south, west, south_west],
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜　　｜＊＊｜　　｜
             #　　　　　＋ーー＋ーー＋ーー＋
@@ -1432,7 +1448,7 @@ class Control():
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜＊＊｜＊＊｜＊＊｜
             #　　　　　＋ーー＋ーー＋ーー＋
-            [east, south_east, north, south, west, south_east],
+            [east, south_east, north, south, west, south_west],
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜　　｜＊＊｜　　｜
             #　　　　　＋ーー＋ーー＋ーー＋
@@ -1440,7 +1456,7 @@ class Control():
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜＊＊｜＊＊｜＊＊｜
             #　　　　　＋ーー＋ーー＋ーー＋
-            [east, south_east, north, south, west, south_east],
+            [east, south_east, north, south, west, south_west],
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜　　｜＊＊｜　　｜
             #　　　　　＋ーー＋ーー＋ーー＋
@@ -1448,7 +1464,7 @@ class Control():
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜＊＊｜＊＊｜＊＊｜
             #　　　　　＋ーー＋ーー＋ーー＋
-            [east, south_east, north, south, west, south_east],
+            [east, south_east, north, south, west, south_west],
             #　　　　　＋ーー＋ーー＋ーー＋
             #　　　　　｜＊＊｜＊＊｜＊＊｜
             #　　　　　＋ーー＋ーー＋ーー＋
@@ -1853,18 +1869,37 @@ class StaticExchangeEvaluation():
 
         # その場所にある駒の種類
         dst_pt = self.kifuwarabes_subordinate.board.pieces[dst_sq]
+        print(f'dst_pt: {piece_type_to_string(dst_pt)}')
 
         # dst_sq に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
         attacker_list = []
-        for piece in self.kifuwarabes_subordinate.board.pieces:
+        print(f'len(self.kifuwarabes_subordinate.board.pieces): {len(self.kifuwarabes_subordinate.board.pieces)}')
+        for sq, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
+            if piece == cshogi.NONE:
+                continue
+
+            print(f'sq jsa: {convert_sq_to_jsa(sq)}, piece: {piece_to_string(piece)}')
 
             # その駒について、利いている升番号のリスト
-            control_list = self.kifuwarabes_colleague.control.sq_list_by(
-                origin_sq = dst_sq,
+            control_sq_list = self.kifuwarabes_colleague.control.sq_list_by(
+                origin_sq = sq,
                 piece = piece)
 
-            if dst_sq in control_list:
+            # その利きを表示
+            print(f'[DEBUG] dst jsa:{convert_sq_to_jsa(dst_sq)} control_list jsa:{convert_sq_to_jsa_for_list(control_sq_list)}')
+            self.kifuwarabes_colleague.check_board_print.set_by_sq_list(control_sq_list)
+            self.kifuwarabes_colleague.check_board_print.do_it()
+
+            if dst_sq in control_sq_list:
+                print(f'[DEBUG] {sq_to_jsa(dst_sq)}へ利かしている')
+                # 利かしている駒なら追加
                 attacker_list.append(piece)
+            else:
+                print(f'[DEBUG] {sq_to_jsa(dst_sq)} 届いてない')
+
+        print(f'len(attacker_list): {len(attacker_list)}')
+        for piece in attacker_list:
+            print(f'attacker_piece: {piece_to_string(piece)}')
 
         # 手番（味方）の駒を入れる friend_queue、 相手番の駒を入れる opponent_queue を作成
         friend_queue = []
@@ -1874,18 +1909,31 @@ class StaticExchangeEvaluation():
         opponent_queue.append(dst_pt)
 
         for piece in attacker_list:
-            if self.kifuwarabes_subordinate.board.turn == cshogi.Black:
+            if self.kifuwarabes_subordinate.board.turn == cshogi.BLACK:
                 if piece < 16:
-                    # attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
+                    # attacker_list へ味方の駒を入れる
                     friend_queue.append(PieceTypeHelper.without_turn(piece))
+
+                    # TODO attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
+
                 else:
-                    # attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
+                    # attacker_list へ相手の駒を入れる
                     opponent_queue.append(PieceTypeHelper.without_turn(piece))
+
+                    # TODO attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
             else:
                 if 16 <= piece:
                     friend_queue.append(PieceTypeHelper.without_turn(piece))
                 else:
                     opponent_queue.append(PieceTypeHelper.without_turn(piece))
+
+        print(f'len(friend_queue): {len(friend_queue)}')
+        for piece in friend_queue:
+            print(f'friend_queue: {piece_to_string(piece)}')
+
+        print(f'len(opponent_queue): {len(opponent_queue)}')
+        for piece in opponent_queue:
+            print(f'opponent_queue: {piece_to_string(piece)}')
 
         value = 0
 
@@ -1893,11 +1941,11 @@ class StaticExchangeEvaluation():
         while 0<len(opponent_queue) and 0<len(friend_queue):
             # 盤面は手番側なので、 opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
             piece_type = opponent_queue.pop()
-            value += self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
+            value += self.kifuwarabes_subordinate.materials_value.piece_type_values[piece_type]
 
             # friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
             piece_type = friend_queue.pop()
-            value -= self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
+            value -= self.kifuwarabes_subordinate.materials_value.piece_type_values[piece_type]
 
         return value
 
