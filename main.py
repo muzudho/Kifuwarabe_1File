@@ -1541,10 +1541,11 @@ class Control():
         relative_sq_array = self.relative_sq_arrays[piece]
 
         if relative_sq_array is None:
+            """空欄など"""
             return []
 
         else:
-            lst = list(relative_sq_array)
+            rel_sq_lst = list(relative_sq_array)
 
             # TODO 長い利きを考慮
             if piece == cshogi.BLANCE or piece == cshogi.BROOK or piece == cshogi.WROOK or piece == cshogi.BPROM_ROOK or piece == cshogi.WPROM_ROOK:
@@ -1564,7 +1565,164 @@ class Control():
                 pass
 
             # 相対位置を、絶対位置へ変換
-            return [sq + origin_sq for sq in lst]
+            abs_sq_list = []
+
+            for rel_sq in rel_sq_lst:
+                abs_sq = origin_sq + rel_sq
+
+                # リミットチェックを行う（長い利きを除く）
+                # TODO 長い利きのリミットチェック
+                if rel_sq == north_north_east:
+                    #　＋ー＋ー＋
+                    #　｜　｜Ｚ｜
+                    #　＋ー＋ー＋
+                    #　｜　｜　｜
+                    #　＋ー＋ー＋
+                    #　｜Ａ｜　｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if file == 1 or rank < 3:
+                        continue
+
+                elif rel_sq == north_east:
+                    #　＋ー＋ー＋
+                    #　｜　｜Ｚ｜
+                    #　＋ー＋ー＋
+                    #　｜Ａ｜　｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if file == 1 or rank == 1:
+                        continue
+
+                elif rel_sq == east:
+                    #　＋ー＋ー＋
+                    #　｜Ａ｜Ｚ｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+
+                    if file == 1:
+                        continue
+
+                elif rel_sq == south_east:
+                    #　＋ー＋ー＋
+                    #　｜Ａ｜　｜
+                    #　＋ー＋ー＋
+                    #　｜　｜Ｚ｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if file == 1 or rank == 9:
+                        continue
+
+                elif rel_sq == south_south_east:
+                    #　＋ー＋ー＋
+                    #　｜Ａ｜　｜
+                    #　＋ー＋ー＋
+                    #　｜　｜　｜
+                    #　＋ー＋ー＋
+                    #　｜　｜Ｚ｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if file == 1 or 7 < rank:
+                        continue
+
+                elif rel_sq == north:
+                    #　＋ー＋
+                    #　｜Ｚ｜
+                    #　＋ー＋
+                    #　｜Ａ｜
+                    #　＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if rank == 1:
+                        continue
+
+                elif rel_sq == south:
+                    #　＋ー＋
+                    #　｜Ａ｜
+                    #　＋ー＋
+                    #　｜Ｚ｜
+                    #　＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if rank == 9:
+                        continue
+
+                elif rel_sq == north_north_west:
+                    #　＋ー＋ー＋
+                    #　｜Ｚ｜　｜
+                    #　＋ー＋ー＋
+                    #　｜　｜　｜
+                    #　＋ー＋ー＋
+                    #　｜　｜Ａ｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if file == 9 or rank < 3:
+                        continue
+
+                elif rel_sq == north_west:
+                    #　＋ー＋ー＋
+                    #　｜Ｚ｜　｜
+                    #　＋ー＋ー＋
+                    #　｜　｜Ａ｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if file == 9 or rank == 1:
+                        continue
+
+                elif rel_sq == west:
+                    #　＋ー＋ー＋
+                    #　｜Ｚ｜Ａ｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if file == 9:
+                        continue
+
+                elif rel_sq == south_west:
+                    #　＋ー＋ー＋
+                    #　｜　｜Ａ｜
+                    #　＋ー＋ー＋
+                    #　｜Ｚ｜　｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if file == 9 or rank == 9:
+                        continue
+
+                elif rel_sq == south_south_west:
+                    #　＋ー＋ー＋
+                    #　｜　｜Ａ｜
+                    #　＋ー＋ー＋
+                    #　｜　｜　｜
+                    #　＋ー＋ー＋
+                    #　｜Ｚ｜　｜
+                    #　＋ー＋ー＋
+                    file = SqHelper.file(abs_sq)
+                    rank = SqHelper.rank(abs_sq)
+
+                    if file == 9 or rank < 7:
+                        continue
+
+                abs_sq_list.append(abs_sq)
+
+            return abs_sq_list
+            # return [rel_sq + origin_sq for rel_sq in rel_sq_lst]
 
 
 
@@ -2000,12 +2158,12 @@ class StaticExchangeEvaluation():
 
         # dst_sq に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
         attacker_list = []
-        # print(f'len(self.kifuwarabes_subordinate.board.pieces): {len(self.kifuwarabes_subordinate.board.pieces)}')
+        print(f'[DEBUG] len(self.kifuwarabes_subordinate.board.pieces): {len(self.kifuwarabes_subordinate.board.pieces)}')
         for sq, piece in enumerate(self.kifuwarabes_subordinate.board.pieces):
             if piece == cshogi.NONE:
                 continue
 
-            # print(f'sq jsa: {convert_sq_to_jsa(sq)}, piece: {piece_to_string(piece)}')
+            print(f'[DEBUG] sq jsa: {convert_sq_to_jsa(sq)}, piece: {piece_to_string(piece)}')
 
             # その駒について、利いている升番号のリスト
             control_sq_list = self.kifuwarabes_colleague.control.sq_list_by(
@@ -2013,20 +2171,20 @@ class StaticExchangeEvaluation():
                 piece = piece)
 
             # その利きを表示
-            # print(f'[DEBUG] dst jsa:{convert_sq_to_jsa(dst_sq)} control_list jsa:{convert_sq_to_jsa_for_list(control_sq_list)}')
-            # self.kifuwarabes_colleague.check_board_print.set_by_sq_list(control_sq_list)
-            # self.kifuwarabes_colleague.check_board_print.do_it()
+            print(f'[DEBUG] dst jsa:{convert_sq_to_jsa(dst_sq)} control_list jsa:{convert_sq_to_jsa_for_list(control_sq_list)}')
+            self.kifuwarabes_colleague.check_board_print.set_by_sq_list(control_sq_list) # [DEBUG]
+            self.kifuwarabes_colleague.check_board_print.do_it() # [DEBUG]
 
             if dst_sq in control_sq_list:
-                # print(f'[DEBUG] {sq_to_jsa(dst_sq)}へ利かしている')
+                print(f'[DEBUG] {sq_to_jsa(dst_sq)}へ利かしている')
                 # 利かしている駒なら追加
                 attacker_list.append(piece)
-            # else:
-            #     print(f'[DEBUG] {sq_to_jsa(dst_sq)} 届いてない')
+            else:
+                print(f'[DEBUG] {sq_to_jsa(dst_sq)} 届いてない')
 
-        # print(f'len(attacker_list): {len(attacker_list)}')
-        # for piece in attacker_list:
-        #     print(f'attacker_piece: {piece_to_string(piece)}')
+        print(f'[DEBUG] len(attacker_list): {len(attacker_list)}')
+        for piece in attacker_list:
+            print(f'[DEBUG] attacker_piece: {piece_to_string(piece)}')
 
         if len(attacker_list) < 1:
             """利いている駒がない"""
@@ -2064,19 +2222,19 @@ class StaticExchangeEvaluation():
                     opponent_queue.append([mat, pt])
                     opponent_queue.sort()
 
-        # print(f'len(friend_queue): {len(friend_queue)}')
-        # for mat_pc in friend_queue:
-        #     print(f'friend_queue: {piece_to_string(mat_pc[1])}')
+        print(f'[DEBUG] len(friend_queue): {len(friend_queue)}')
+        for mat_pc in friend_queue:
+            print(f'[DEBUG] friend_queue: {piece_to_string(mat_pc[1])}')
 
-        # print(f'len(opponent_queue): {len(opponent_queue)}')
-        # for mat_pc in opponent_queue:
-        #     print(f'opponent_queue: {piece_to_string(mat_pc[1])}')
+        print(f'[DEBUG] len(opponent_queue): {len(opponent_queue)}')
+        for mat_pc in opponent_queue:
+            print(f'[DEBUG] opponent_queue: {piece_to_string(mat_pc[1])}')
 
         # 取り合いになる場所に置かれている駒は、取り返される
         dst_pt = PieceTypeHelper.from_piece(dst_pc)
         mat = self.kifuwarabes_subordinate.materials_value.piece_type_values[dst_pt]
         value = mat
-        # print(f'opponent: {-value}')
+        print(f'[DEBUG] opponent: {-value}')
 
         # opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
         while 0<len(opponent_queue):
@@ -2084,7 +2242,7 @@ class StaticExchangeEvaluation():
             # opponent_queue の先頭の駒をポップし、その駒の価値（交換値なので２倍）を　評価値に加点。
             (mat, _piece_type) = opponent_queue.pop()
             value += 2*mat
-            # print(f'friend: {value}')
+            print(f'[DEBUG] friend: {value}')
 
             if len(friend_queue) < 1:
                 break
@@ -2092,9 +2250,23 @@ class StaticExchangeEvaluation():
             # friend_queue の先頭の駒をポップし、その駒の価値（交換値なので２倍）を　評価値から減点。
             (mat, piece_type) = friend_queue.pop()
             value -= 2*mat
-            # print(f'opponent: {-value}')
+            print(f'[DEBUG] opponent: {-value}')
 
         return value
+
+
+class SqHelper():
+    """升番号 sq"""
+
+    @staticmethod
+    def file(sq):
+        """筋"""
+        return sq // 9 + 1
+
+    @staticmethod
+    def rank(sq):
+        """段"""
+        return sq % 9 + 1
 
 
 class MoveHelper():
