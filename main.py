@@ -522,22 +522,21 @@ class Kifuwarabe():
                     jsa = sq_to_jsa(sq)
                     print(f'升：{jsa}　駒：{piece_to_string(piece)}　sq jsa：{jsa_to_sq(jsa)}')
 
-            elif cmd[0] == 'beauty':
-                """独自拡張。美意識を返す"""
-
-                print(f'ターン：{self.subordinate.board.turn}')
+            elif cmd[0] == 'ranging':
+                """振り飛車になっているか確認する"""
 
                 ranging_rook = self.colleague.sense_of_beauty.check_ranging_rook()
+
                 if ranging_rook == 0:
-                    print(f'beauty 何でもない')
+                    print(f'［振り飛車確認］　何でもない')
                 elif ranging_rook == 1:
-                    print(f'beauty 相居飛車')
+                    print(f'［振り飛車確認］　相居飛車')
                 elif ranging_rook == 2:
-                    print(f'beauty 先手振り飛車')
+                    print(f'［振り飛車確認］　先手振り飛車')
                 elif ranging_rook == 3:
-                    print(f'beauty 後手振り飛車')
+                    print(f'［振り飛車確認］　後手振り飛車')
                 elif ranging_rook == 4:
-                    print(f'beauty 相振り飛車')
+                    print(f'［振り飛車確認］　相振り飛車')
 
                 piece_at28 = self.subordinate.board.pieces[cshogi.H2]
                 print(f'２八の駒：{piece_to_string(piece_at28)}')
@@ -1770,20 +1769,20 @@ class PositionEvaluation():
         if ranging_rook == 2:
             # 先手振り飛車
             if cshogi.BLACK == self.kifuwarabes_subordinate.board.turn:
+                # 手番が振り飛車やってる。えらいぞ
+                value += 10
+            else:
                 # 相手が振り飛車やってる。しゃーない
                 pass
-            else:
-                # 自分が振り飛車やってる。えらいぞ
-                value += 10
 
         elif ranging_rook == 3:
             # 後手振り飛車
             if cshogi.WHITE == self.kifuwarabes_subordinate.board.turn:
+                # 手番が振り飛車やってる。えらいぞ
+                value += 10
+            else:
                 # 相手が振り飛車やってる。しゃーない
                 pass
-            else:
-                # 自分が振り飛車やってる。えらいぞ
-                value += 10
 
         elif ranging_rook == 1:
             # 相居飛車やってる。さっさと飛車振れだぜ
