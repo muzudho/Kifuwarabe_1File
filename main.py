@@ -471,6 +471,7 @@ class Kifuwarabe():
                 break
 
             # 以下、独自拡張
+
             elif cmd[0] == 'do':
                 """一手指す
                 example: ７六歩
@@ -550,11 +551,18 @@ class Kifuwarabe():
                    code: posval 43
                 """
 
-                # 移動先
-                dst_sq = convert_jsa_to_sq(int(cmd[1]))
+                if len(cmd)<2:
+                    print(f'miss\nexample: posval 43')
 
-                value = self.colleague.position_evaluation.do_it(move_dst_sq=dst_sq)
-                print(f'局面評価値：　{value}')
+                else:
+                    try:
+                        # 移動先
+                        dst_sq = convert_jsa_to_sq(int(cmd[1]))
+
+                        value = self.colleague.position_evaluation.do_it(move_dst_sq=dst_sq)
+                        print(f'局面評価値：　{value}')
+                    except Exception as e:
+                        print(f'例外：　{e}')
 
             elif cmd[0] == 'pos':
                 """独自拡張。局面表示"""
@@ -860,7 +868,7 @@ class CheckBoardPrint():
         i = non_zero_to_cross(self.number_board[cshogi.A9])
         text += f"""　　９　　８　　７　　６　　５　　４　　３　　２　　１
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
-｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　一
+｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　一　ａ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -873,7 +881,7 @@ class CheckBoardPrint():
         g = non_zero_to_cross(self.number_board[cshogi.B7])
         h = non_zero_to_cross(self.number_board[cshogi.B8])
         i = non_zero_to_cross(self.number_board[cshogi.B9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　二
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　二　ｂ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -886,7 +894,7 @@ class CheckBoardPrint():
         g = non_zero_to_cross(self.number_board[cshogi.C7])
         h = non_zero_to_cross(self.number_board[cshogi.C8])
         i = non_zero_to_cross(self.number_board[cshogi.C9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　三
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　三　ｃ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -899,7 +907,7 @@ class CheckBoardPrint():
         g = non_zero_to_cross(self.number_board[cshogi.D7])
         h = non_zero_to_cross(self.number_board[cshogi.D8])
         i = non_zero_to_cross(self.number_board[cshogi.D9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　四
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　四　ｄ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -912,7 +920,7 @@ class CheckBoardPrint():
         g = non_zero_to_cross(self.number_board[cshogi.E7])
         h = non_zero_to_cross(self.number_board[cshogi.E8])
         i = non_zero_to_cross(self.number_board[cshogi.E9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　五
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　五　ｅ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -925,7 +933,7 @@ class CheckBoardPrint():
         g = non_zero_to_cross(self.number_board[cshogi.F7])
         h = non_zero_to_cross(self.number_board[cshogi.F8])
         i = non_zero_to_cross(self.number_board[cshogi.F9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　六
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　六　ｆ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -938,7 +946,7 @@ class CheckBoardPrint():
         g = non_zero_to_cross(self.number_board[cshogi.G7])
         h = non_zero_to_cross(self.number_board[cshogi.G8])
         i = non_zero_to_cross(self.number_board[cshogi.G9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　七
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　七　ｇ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -951,7 +959,7 @@ class CheckBoardPrint():
         g = non_zero_to_cross(self.number_board[cshogi.H7])
         h = non_zero_to_cross(self.number_board[cshogi.H8])
         i = non_zero_to_cross(self.number_board[cshogi.H9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　八
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　八　ｈ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -964,7 +972,7 @@ class CheckBoardPrint():
         g = non_zero_to_cross(self.number_board[cshogi.I7])
         h = non_zero_to_cross(self.number_board[cshogi.I8])
         i = non_zero_to_cross(self.number_board[cshogi.I9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　九
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　九　ｉ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -1011,7 +1019,9 @@ class PositionPrint():
         else:
             turn_str = "white"
 
-        text = f'''[next {move_number_str} moves / {turn_str}]
+        text = f'''
+
+[next {move_number_str} moves / {turn_str}]
 
 '''
 
@@ -1043,7 +1053,7 @@ class PositionPrint():
         i = piece_to_string(board.pieces[cshogi.A9])
         text += f"""　　９　　８　　７　　６　　５　　４　　３　　２　　１
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
-｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　一
+｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　一　ａ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -1056,7 +1066,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.B7])
         h = piece_to_string(board.pieces[cshogi.B8])
         i = piece_to_string(board.pieces[cshogi.B9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　二
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　二　ｂ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -1069,7 +1079,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.C7])
         h = piece_to_string(board.pieces[cshogi.C8])
         i = piece_to_string(board.pieces[cshogi.C9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　三
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　三　ｃ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -1082,7 +1092,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.D7])
         h = piece_to_string(board.pieces[cshogi.D8])
         i = piece_to_string(board.pieces[cshogi.D9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　四
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　四　ｄ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -1095,7 +1105,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.E7])
         h = piece_to_string(board.pieces[cshogi.E8])
         i = piece_to_string(board.pieces[cshogi.E9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　五
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　五　ｅ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -1108,7 +1118,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.F7])
         h = piece_to_string(board.pieces[cshogi.F8])
         i = piece_to_string(board.pieces[cshogi.F9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　六
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　六　ｆ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -1121,7 +1131,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.G7])
         h = piece_to_string(board.pieces[cshogi.G8])
         i = piece_to_string(board.pieces[cshogi.G9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　七
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　七　ｇ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -1134,7 +1144,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.H7])
         h = piece_to_string(board.pieces[cshogi.H8])
         i = piece_to_string(board.pieces[cshogi.H9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　八
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　八　ｈ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
@@ -1147,7 +1157,7 @@ class PositionPrint():
         g = piece_to_string(board.pieces[cshogi.I7])
         h = piece_to_string(board.pieces[cshogi.I8])
         i = piece_to_string(board.pieces[cshogi.I9])
-        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　九
+        text += f"""｜{i}｜{h}｜{g}｜{f}｜{e}｜{d}｜{c}｜{b}｜{a}｜　九　ｉ
 ＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋ーー＋
 """
 
