@@ -446,7 +446,7 @@ class Kifuwarabe():
 
             if cmd[0] == 'usi':
                 """USIエンジン握手"""
-                print('id name Kifuwarabe1FileV1')
+                print('id name Kifuwarabe1FileV1_1')
                 print('usiok', flush=True)
 
             elif cmd[0] == 'isready':
@@ -583,8 +583,12 @@ class Kifuwarabe():
                         # 移動先
                         dst_sq = convert_jsa_to_sq(int(cmd[1]))
 
-                        value = self.colleague.position_evaluation.do_it(move_dst_sq=dst_sq)
-                        print(f'局面評価値：　{value}')
+                        print('局面評価値内訳：')
+                        value_list = self.colleague.position_evaluation.do_it(move_dst_sq=dst_sq)
+                        for index, value in enumerate(value_list):
+                            print(f'　　（{index:2}） {value:10}')
+                        print(f'　　（計） {sum(value_list):10}')
+
                     except Exception as e:
                         print(f'例外：　{e}')
 
@@ -605,9 +609,13 @@ class Kifuwarabe():
                     self.colleague.position_print.do_it()
                     # 局面表示
 
-                    value = self.colleague.position_evaluation.do_it(MoveHelper.destination(move))
                     # 局面評価値表示
-                    print(f'局面評価値：{value}')
+                    dst_sq = MoveHelper.destination(move)
+                    print('局面評価値内訳：')
+                    value_list = self.colleague.position_evaluation.do_it(move_dst_sq=dst_sq)
+                    for index, value in enumerate(value_list):
+                        print(f'　　（{index:2}） {value:10}')
+                    print(f'　　（計） {sum(value_list):10}')
 
                     self.subordinate.board.pop()
                     # 一手戻す
@@ -1956,19 +1964,20 @@ class PositionEvaluation():
         """
 
         # 手番から見た駒割評価
-        value = self.kifuwarabes_subordinate.materials_value.eval(
+        materials_value = self.kifuwarabes_subordinate.materials_value.eval(
             board=self.kifuwarabes_subordinate.board)
 
         # 駒の取り合いを解消したい。SEE（Static Exchange Evaluation）
-        value += self.kifuwarabes_colleague.static_exchange_evaluation.do_it(move_dst_sq)
+        see_value = self.kifuwarabes_colleague.static_exchange_evaluation.do_it(move_dst_sq)
 
+        ranging_value = 0
         ranging_rook = self._kifuwarabes_colleague.sense_of_beauty.check_ranging_rook()
 
         if ranging_rook == 2:
             # 先手振り飛車
             if cshogi.BLACK == self.kifuwarabes_subordinate.board.turn:
                 # 手番が振り飛車やってる。えらいぞ
-                value += 10
+                ranging_value = 10
             else:
                 # 相手が振り飛車やってる。しゃーない
                 pass
@@ -1977,14 +1986,14 @@ class PositionEvaluation():
             # 後手振り飛車
             if cshogi.WHITE == self.kifuwarabes_subordinate.board.turn:
                 # 手番が振り飛車やってる。えらいぞ
-                value += 10
+                ranging_value = 10
             else:
                 # 相手が振り飛車やってる。しゃーない
                 pass
 
         elif ranging_rook == 1:
             # 相居飛車やってる。さっさと飛車振れだぜ
-            value -= 10
+            ranging_value = -10
 
         elif ranging_rook == 4:
             # 相振り飛車やってる。しゃーない
@@ -1994,7 +2003,7 @@ class PositionEvaluation():
             # 何でもない
             pass
 
-        return value
+        return [materials_value, ranging_value, see_value]
 
 
 class AlphaBetaPruning():
@@ -2078,7 +2087,8 @@ class AlphaBetaPruning():
                     """末端局面評価値"""
 
                     # どんな手を指したか
-                    temp_value = self.on_eval_on_leaf(move_dst_sq=MoveHelper.destination(move))
+                    value_list = self.on_eval_on_leaf(move_dst_sq=MoveHelper.destination(move))
+                    temp_value = sum(value_list)
 
             else:
                 pass
