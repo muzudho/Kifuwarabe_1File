@@ -7,6 +7,9 @@ import random
 test_case_1 = "position sfen 4r4/4l4/3nlnb2/3kps3/3g1G3/3SPK3/2BNLN3/4L4/4R4 b GS8Pgs8p 1"
 """Ｎｏ．１　駒の取り合い。次の一手は５五銀 S*5e """
 
+test_case_1_1 = "position sfen 4r4/4l4/3nlnb2/3kps3/3g1G3/3SPK3/2BNLN3/4L4/4R4 b GS8Pgs8p 1 moves 4e3e"
+"""Ｎｏ．１．１　変形。３五金。posval 35 で局面評価値確認"""
+
 test_case_2 = "position sfen lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1R5/LNSGKGSNL b - 1"
 """Ｎｏ．２　初手、四間飛車"""
 
@@ -566,6 +569,28 @@ class Kifuwarabe():
             elif cmd[0] == 'pos':
                 """独自拡張。局面表示"""
                 self.colleague.position_print.do_it()
+
+            elif cmd[0] == 'moveval':
+                """１手読みでの指し手の評価値一覧"""
+
+                old_depth = self.colleague.thought.depth
+                self.colleague.thought.depth = 1
+
+                for move in self.subordinate.board.legal_moves:
+                    self.subordinate.board.push(move)
+                    # 一手指す
+
+                    self.colleague.position_print.do_it()
+                    # 局面表示
+
+                    value = self.colleague.position_evaluation.do_it(MoveHelper.destination(move))
+                    # 局面評価値表示
+                    print(f'局面評価値：{value}')
+
+                    self.subordinate.board.pop()
+                    # 一手戻す
+
+                self.colleague.thought.depth = old_depth
 
 
     def position(self, sfen, usi_moves):
@@ -1620,7 +1645,8 @@ class SenseOfBeauty():
         return 0 # 何でもない
 
 class Thought():
-    """思考"""
+    """思考。
+    主に、そのための設定"""
 
     def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
         """初期化
@@ -1639,6 +1665,9 @@ class Thought():
         self._kifuwarabes_colleague = kifuwarabes_colleague
         """きふわらべの同僚"""
 
+        self._depth = 3
+        """読みの深さ"""
+
     @property
     def kifuwarabes_subordinate(self):
         """きふわらべの部下"""
@@ -1648,6 +1677,15 @@ class Thought():
     def kifuwarabes_colleague(self):
         """きふわらべの同僚"""
         return self._kifuwarabes_colleague
+
+    @property
+    def depth(self):
+        """読みの深さ"""
+        return self._depth
+
+    @depth.setter
+    def depth(self, value):
+        self._depth = value
 
     def do_it(self):
         """それをする"""
@@ -1675,7 +1713,7 @@ class Thought():
 
         # move = self.choice_random(list(self.kifuwarabes_subordinate.board.legal_moves))
         (current_beta, bestmove_list) = self.kifuwarabes_colleague.alpha_beta_pruning.do_it(
-            depth=3,
+            depth=self.depth,
             alpha = -9999999, # 数ある選択肢の中の、評価値の下限。この下限値は、ベータ値いっぱいまで上げたい"""
             beta = 9999999, # 数ある選択肢の中の、評価値の上限。この値を超える選択肢は、相手に必ず妨害されるので選べない
             is_root = True
