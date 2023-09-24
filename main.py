@@ -474,6 +474,10 @@ class Kifuwarabe():
                 self.colleague.check_board_print.set_by_sq_list(sq_list)
                 self.colleague.check_board_print.do_it()
 
+                # SEE を調べる
+                friend_value = self.colleague.static_exchange_evaluation.do_it(dst_sq)
+                print(f'[DEBUG] friend_value:{friend_value}')
+
             elif cmd[0] == 'debug1':
                 """独自拡張。デバッグ。マス番号の変換"""
                 for sq, piece in enumerate(self.subordinate.board.pieces):
@@ -603,6 +607,12 @@ class KifuwarabesColleague():
         )
         """探索アルゴリズム　アルファーベーター刈り"""
 
+        self._static_exchange_evaluation = StaticExchangeEvaluation(
+            kifuwarabes_subordinate=kifuwarabes_subordinate,
+            kifuwarabes_colleague=self
+        )
+        """評価関数　エス・イー・イー（Static Exchange Evaluation；静的駒交換評価）"""
+
     @property
     def kifuwarabes_subordinate(self):
         """きふわらべの部下"""
@@ -643,59 +653,10 @@ class KifuwarabesColleague():
         """探索アルゴリズム　アルファーベーター刈り"""
         return self._alpha_beta_pruning
 
-    def get_static_exchange_evaluation(self, move):
-        """静的駒交換値"""
-
-        # 最後に差した駒の移動先升番号。この升を dst_sq、その駒の種類を dst_pt とでも表記するとする
-        dst_sq = MoveHelper.destination(move)
-        dst_pt = MoveHelper.piece_type(move)
-
-        # dst_sq に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
-        attacker_list = []
-        for piece in self.kifuwarabes_subordinate.board.pieces:
-
-            # その駒について、利いている升番号のリスト
-            control_list = self.control.sq_list_by(
-                origin_sq = dst_sq,
-                piece = piece)
-
-            if dst_sq in control_list:
-                attacker_list.append(piece)
-
-        # 手番（味方）の駒を入れる friend_queue、 相手番の駒を入れる opponent_queue を作成
-        friend_queue = []
-        opponent_queue = []
-
-        # dst_pt を opponent_queue へ入れる
-        opponent_queue.append(dst_pt)
-
-        for piece in attacker_list:
-            if self.kifuwarabes_subordinate.board.turn == cshogi.Black:
-                if piece < 16:
-                    # attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
-                    friend_queue.append(PieceTypeHelper.without_turn(piece))
-                else:
-                    # attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
-                    opponent_queue.append(PieceTypeHelper.without_turn(piece))
-            else:
-                if 16 <= piece:
-                    friend_queue.append(PieceTypeHelper.without_turn(piece))
-                else:
-                    opponent_queue.append(PieceTypeHelper.without_turn(piece))
-
-        value = 0
-
-        # opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
-        while 0<len(opponent_queue) and 0<len(friend_queue):
-            # 盤面は手番側なので、 opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
-            piece_type = opponent_queue.pop()
-            value += self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
-
-            # friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
-            piece_type = friend_queue.pop()
-            value -= self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
-
-        return value
+    @property
+    def static_exchange_evaluation(self):
+        """評価関数　エス・イー・イー（Static Exchange Evaluation；静的駒交換評価）"""
+        return self._static_exchange_evaluation
 
     def on_eval_on_leaf(self, move):
         """末端局面での評価値計算"""
@@ -704,8 +665,8 @@ class KifuwarabesColleague():
         current_beta = self.kifuwarabes_subordinate.materials_value.eval(
             board=self.kifuwarabes_subordinate.board)
 
-        # TODO 駒の取り合いを解消したい。Static Exchange Evaluation
-        current_beta += self.get_static_exchange_evaluation(move)
+        # TODO 駒の取り合いを解消したい。SEE（Static Exchange Evaluation）
+        current_beta += self.static_exchange_evaluation.do_it(move)
 
         current_alpha = -current_beta
 
@@ -1852,6 +1813,93 @@ class AlphaBetaPruning():
         else:
             return (alpha, None)
         """自分が将来獲得できるであろう、もっとも良い、最低限の評価値"""
+
+
+class StaticExchangeEvaluation():
+    """エス・イー・イー（Static Exchange Evaluation, SEE）"""
+
+    def __init__(self, kifuwarabes_subordinate, kifuwarabes_colleague):
+        """初期化
+
+        Parameters
+        ----------
+        kifuwarabes_subordinate
+            きふわらべの部下
+        """
+
+        self._kifuwarabes_subordinate = kifuwarabes_subordinate
+        """きふわらべの部下"""
+
+        self._kifuwarabes_colleague = kifuwarabes_colleague
+        """きふわらべの同僚"""
+
+    @property
+    def kifuwarabes_subordinate(self):
+        """きふわらべの部下"""
+        return self._kifuwarabes_subordinate
+
+    @property
+    def kifuwarabes_colleague(self):
+        """きふわらべの同僚"""
+        return self._kifuwarabes_colleague
+
+    def do_it(self, dst_sq):
+        """それをする
+        Parameters
+        ----------
+        dst_sq : int
+            駒の取り合いが発生する升
+        """
+
+        # その場所にある駒の種類
+        dst_pt = self.kifuwarabes_subordinate.board.pieces[dst_sq]
+
+        # dst_sq に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
+        attacker_list = []
+        for piece in self.kifuwarabes_subordinate.board.pieces:
+
+            # その駒について、利いている升番号のリスト
+            control_list = self.kifuwarabes_colleague.control.sq_list_by(
+                origin_sq = dst_sq,
+                piece = piece)
+
+            if dst_sq in control_list:
+                attacker_list.append(piece)
+
+        # 手番（味方）の駒を入れる friend_queue、 相手番の駒を入れる opponent_queue を作成
+        friend_queue = []
+        opponent_queue = []
+
+        # dst_pt を opponent_queue へ入れる
+        opponent_queue.append(dst_pt)
+
+        for piece in attacker_list:
+            if self.kifuwarabes_subordinate.board.turn == cshogi.Black:
+                if piece < 16:
+                    # attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
+                    friend_queue.append(PieceTypeHelper.without_turn(piece))
+                else:
+                    # attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
+                    opponent_queue.append(PieceTypeHelper.without_turn(piece))
+            else:
+                if 16 <= piece:
+                    friend_queue.append(PieceTypeHelper.without_turn(piece))
+                else:
+                    opponent_queue.append(PieceTypeHelper.without_turn(piece))
+
+        value = 0
+
+        # opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
+        while 0<len(opponent_queue) and 0<len(friend_queue):
+            # 盤面は手番側なので、 opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
+            piece_type = opponent_queue.pop()
+            value += self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
+
+            # friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
+            piece_type = friend_queue.pop()
+            value -= self.kifuwarabes_subordinate.materials.piece_type_values[piece_type]
+
+        return value
 
 class MoveHelper():
 
