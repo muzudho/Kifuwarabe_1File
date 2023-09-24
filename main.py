@@ -724,22 +724,23 @@ class MaterialsValue():
     """手番から見た駒割評価"""
 
     def __init__(self):
-        # 利き１個 100点換算
+        # 利き１個 100点換算。長い利きは利き２個分
+        # 駒種類に順序が付くように、同点は避ける
         none_value = 0
         pawn_value = 100
-        lance_value = 800 // 2
-        knight_value = 200
+        lance_value = 200
+        knight_value = 201
         silver_value = 500
         gold_value = 600
-        bishop_value = 1600 // 2
-        rook_value = 1600 // 2
-        king_value = 0
-        promoted_pawn = 600
-        promoted_lance = 600
-        promoted_knight = 600
-        promoted_silver = 600
-        horse = 2000 // 2
-        dragon = 2000 // 2
+        bishop_value = 800
+        rook_value = 801
+        king_value = 30000
+        promoted_pawn = 604
+        promoted_lance = 603
+        promoted_knight = 602
+        promoted_silver = 601
+        horse = 1200
+        dragon = 1201
 
         self._hand = [pawn_value, lance_value, knight_value, silver_value, gold_value, bishop_value, rook_value,]
         """持ち駒。歩、香、桂、銀、金、角、飛"""
@@ -751,7 +752,7 @@ class MaterialsValue():
             # ▲と、▲杏、▲圭、▲全、▲馬、▲竜、未使用、
         ]
 
-        self._on_board = [
+        self._piece_values = [
             none_value, pawn_value, lance_value, knight_value, silver_value, bishop_value, rook_value, gold_value, king_value,
             # None、▲歩、▲香、▲桂、▲銀、▲角、▲飛、▲金、▲玉、
             promoted_pawn, promoted_lance, promoted_knight, promoted_silver, horse, dragon, none_value,
@@ -776,14 +777,14 @@ class MaterialsValue():
         return self._piece_type_values
 
     @property
-    def on_board(self):
+    def piece_values(self):
         """盤上の駒の価値"""
-        return self._on_board
+        return self._piece_values
 
     def eval(self, board):
         """手番から見た評価"""
 
-        value = sum(self.on_board[pc] for pc in board.pieces if 0 < pc)
+        value = sum(self.piece_values[pc] for pc in board.pieces if 0 < pc)
         """盤上の駒の価値"""
 
         pieces_in_hand = board.pieces_in_hand
@@ -1867,9 +1868,10 @@ class StaticExchangeEvaluation():
             駒の取り合いが発生する升
         """
 
+        print(f'駒の取り合いが発生する升: {convert_sq_to_jsa(dst_sq)}')
+
         # その場所にある駒の種類
-        dst_pt = self.kifuwarabes_subordinate.board.pieces[dst_sq]
-        print(f'dst_pt: {piece_type_to_string(dst_pt)}')
+        dst_pc = self.kifuwarabes_subordinate.board.pieces[dst_sq]
 
         # dst_sq に到達できる全ての盤上の駒。これを attacker_list とでも呼ぶとする
         attacker_list = []
@@ -1901,51 +1903,71 @@ class StaticExchangeEvaluation():
         for piece in attacker_list:
             print(f'attacker_piece: {piece_to_string(piece)}')
 
+        if len(attacker_list) < 1:
+            """利いている駒がない"""
+            return 0
+
         # 手番（味方）の駒を入れる friend_queue、 相手番の駒を入れる opponent_queue を作成
         friend_queue = []
         opponent_queue = []
 
-        # dst_pt を opponent_queue へ入れる
-        opponent_queue.append(dst_pt)
-
         for piece in attacker_list:
+            # マテリアル・バリュー（Material Value；駒の価値）を求める
+            pt = PieceTypeHelper.from_piece(piece)
+            mat = self.kifuwarabes_subordinate.materials_value.piece_type_values[pt]
+
             if self.kifuwarabes_subordinate.board.turn == cshogi.BLACK:
                 if piece < 16:
                     # attacker_list へ味方の駒を入れる
-                    friend_queue.append(PieceTypeHelper.without_turn(piece))
+                    friend_queue.append([mat, pt])
 
                     # TODO attacker_list の中の味方の駒を、価値の安い順に friend_queue へ入れる
+                     # 第一引数の昇順
+                    friend_queue.sort()
 
                 else:
                     # attacker_list へ相手の駒を入れる
-                    opponent_queue.append(PieceTypeHelper.without_turn(piece))
+                    opponent_queue.append([mat, pt])
 
                     # TODO attacker_list の中の相手の駒を、価値の安い順に opponent_queue へ入れる
+                    opponent_queue.sort()
             else:
                 if 16 <= piece:
-                    friend_queue.append(PieceTypeHelper.without_turn(piece))
+                    friend_queue.append([mat, pt])
+                    friend_queue.sort()
                 else:
-                    opponent_queue.append(PieceTypeHelper.without_turn(piece))
+                    opponent_queue.append([mat, pt])
+                    opponent_queue.sort()
 
         print(f'len(friend_queue): {len(friend_queue)}')
-        for piece in friend_queue:
-            print(f'friend_queue: {piece_to_string(piece)}')
+        for mat_pc in friend_queue:
+            print(f'friend_queue: {piece_to_string(mat_pc[1])}')
 
         print(f'len(opponent_queue): {len(opponent_queue)}')
-        for piece in opponent_queue:
-            print(f'opponent_queue: {piece_to_string(piece)}')
+        for mat_pc in opponent_queue:
+            print(f'opponent_queue: {piece_to_string(mat_pc[1])}')
 
-        value = 0
+        # 取り合いになる場所に置かれている駒は、取り返される
+        dst_pt = PieceTypeHelper.from_piece(dst_pc)
+        mat = self.kifuwarabes_subordinate.materials_value.piece_type_values[dst_pt]
+        value = mat
+        print(f'opponent: {-value}')
 
         # opponent_queue、または friend_queue のどちらかのキューが空になるまで、以下を繰り返す
-        while 0<len(opponent_queue) and 0<len(friend_queue):
-            # 盤面は手番側なので、 opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
-            piece_type = opponent_queue.pop()
-            value += self.kifuwarabes_subordinate.materials_value.piece_type_values[piece_type]
+        while 0<len(opponent_queue):
+            # 取り返しにきた相手の駒を、さらに取る
+            # opponent_queue の先頭の駒をポップし、その駒の価値を　評価値に加点。
+            (mat, _piece_type) = opponent_queue.pop()
+            value += mat
+            print(f'friend: {value}')
+
+            if len(friend_queue) < 1:
+                break
 
             # friend_queue の先頭の駒をポップし、その駒の価値を　評価値から減点。
-            piece_type = friend_queue.pop()
-            value -= self.kifuwarabes_subordinate.materials_value.piece_type_values[piece_type]
+            (mat, piece_type) = friend_queue.pop()
+            value -= mat
+            print(f'opponent: {-value}')
 
         return value
 
@@ -1988,7 +2010,7 @@ class PieceTypeHelper():
     """駒の種類ヘルパー"""
 
     @staticmethod
-    def without_turn(piece):
+    def from_piece(piece):
         return piece % 16
 
 class UsiHelper():
