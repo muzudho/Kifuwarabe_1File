@@ -497,6 +497,7 @@ class Kifuwarabe():
                 else:
                     sq_jsa = int(cmd[1])
                     sq = convert_jsa_to_sq(sq_jsa)
+                    print(f'cmd1: "{cmd[1]}", jsa: {sq_jsa}, sq: {sq}')
                     piece = self.subordinate.board.pieces[sq]
 
                     try:
@@ -1311,7 +1312,7 @@ class Control():
         """きふわらべの同僚"""
 
         # 長い利きは除く
-        self._relative_sq_arrays = [
+        self._relative_sq_lists = [
             #　　　　　　　　＋ーー＋
             #　　０．　　　　｜　　｜
             #　　　　　　　　＋ーー＋
@@ -1552,22 +1553,21 @@ class Control():
         return self._kifuwarabes_colleague
 
     @property
-    def relative_sq_arrays(self):
+    def relative_sq_lists(self):
         """配列"""
-        return self._relative_sq_arrays
+        return self._relative_sq_lists
 
     def sq_list_by(self, origin_sq, piece):
         """利き升番号のリスト"""
 
-        relative_sq_array = self.relative_sq_arrays[piece]
+        rel_sq_list = self.relative_sq_lists[piece]
+        # print(f'［利き］　len(rel_sq_list): {len(rel_sq_list)}')
 
-        if relative_sq_array is None:
+        if rel_sq_list is None:
             """空欄など"""
             return []
 
         else:
-            rel_sq_lst = list(relative_sq_array)
-
             # TODO 長い利きを考慮
             if piece == cshogi.BLANCE or piece == cshogi.BROOK or piece == cshogi.WROOK or piece == cshogi.BPROM_ROOK or piece == cshogi.WPROM_ROOK:
                 #　＿香
@@ -1588,12 +1588,17 @@ class Control():
             # 相対位置を、絶対位置へ変換
             abs_sq_list = []
 
-            for rel_sq in rel_sq_lst:
+            for rel_sq in rel_sq_list:
                 abs_sq = origin_sq + rel_sq
+                origin_file = SqHelper.file(origin_sq)
+                origin_rank = SqHelper.rank(origin_sq)
+
+                # print(f'［利き］　abs_sq: {abs_sq}, origin_sq: {origin_sq}, rel_sq: {rel_sq}, origin_file: {origin_file}, origin_rank: {origin_rank}')
 
                 # リミットチェックを行う（長い利きを除く）
                 # TODO 長い利きのリミットチェック
                 if rel_sq == north_north_east:
+                    # print(f'［利き］　北北東')
                     #　＋ー＋ー＋
                     #　｜　｜Ｚ｜
                     #　＋ー＋ー＋
@@ -1601,46 +1606,39 @@ class Control():
                     #　＋ー＋ー＋
                     #　｜Ａ｜　｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if file == 1 or rank < 3:
+                    if origin_file == 1 or origin_rank < 3:
                         continue
 
                 elif rel_sq == north_east:
+                    # print(f'［利き］　北東')
                     #　＋ー＋ー＋
                     #　｜　｜Ｚ｜
                     #　＋ー＋ー＋
                     #　｜Ａ｜　｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if file == 1 or rank == 1:
+                    if origin_file == 1 or origin_rank == 1:
                         continue
 
                 elif rel_sq == east:
+                    # print(f'［利き］　東')
                     #　＋ー＋ー＋
                     #　｜Ａ｜Ｚ｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-
-                    if file == 1:
+                    if origin_file == 1:
                         continue
 
                 elif rel_sq == south_east:
+                    # print(f'［利き］　南東')
                     #　＋ー＋ー＋
                     #　｜Ａ｜　｜
                     #　＋ー＋ー＋
                     #　｜　｜Ｚ｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if file == 1 or rank == 9:
+                    if origin_file == 1 or origin_rank == 9:
                         continue
 
                 elif rel_sq == south_south_east:
+                    # print(f'［利き］　南南東')
                     #　＋ー＋ー＋
                     #　｜Ａ｜　｜
                     #　＋ー＋ー＋
@@ -1648,37 +1646,31 @@ class Control():
                     #　＋ー＋ー＋
                     #　｜　｜Ｚ｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if file == 1 or 7 < rank:
+                    if origin_file == 1 or 7 < origin_rank:
                         continue
 
                 elif rel_sq == north:
+                    # print(f'［利き］　北')
                     #　＋ー＋
                     #　｜Ｚ｜
                     #　＋ー＋
                     #　｜Ａ｜
                     #　＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if rank == 1:
+                    if origin_rank == 1:
                         continue
 
                 elif rel_sq == south:
+                    # print(f'［利き］　南')
                     #　＋ー＋
                     #　｜Ａ｜
                     #　＋ー＋
                     #　｜Ｚ｜
                     #　＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if rank == 9:
+                    if origin_rank == 9:
                         continue
 
                 elif rel_sq == north_north_west:
+                    # print(f'［利き］　北北西')
                     #　＋ー＋ー＋
                     #　｜Ｚ｜　｜
                     #　＋ー＋ー＋
@@ -1686,47 +1678,39 @@ class Control():
                     #　＋ー＋ー＋
                     #　｜　｜Ａ｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if file == 9 or rank < 3:
+                    if origin_file == 9 or origin_rank < 3:
                         continue
 
                 elif rel_sq == north_west:
+                    # print(f'［利き］　北西')
                     #　＋ー＋ー＋
                     #　｜Ｚ｜　｜
                     #　＋ー＋ー＋
                     #　｜　｜Ａ｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if file == 9 or rank == 1:
+                    if origin_file == 9 or origin_rank == 1:
                         continue
 
                 elif rel_sq == west:
+                    # print(f'［利き］　西')
                     #　＋ー＋ー＋
                     #　｜Ｚ｜Ａ｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if file == 9:
+                    if origin_file == 9:
                         continue
 
                 elif rel_sq == south_west:
+                    # print(f'［利き］　南西')
                     #　＋ー＋ー＋
                     #　｜　｜Ａ｜
                     #　＋ー＋ー＋
                     #　｜Ｚ｜　｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if file == 9 or rank == 9:
+                    if origin_file == 9 or origin_rank == 9:
                         continue
 
                 elif rel_sq == south_south_west:
+                    # print(f'［利き］　南南西')
                     #　＋ー＋ー＋
                     #　｜　｜Ａ｜
                     #　＋ー＋ー＋
@@ -1734,16 +1718,13 @@ class Control():
                     #　＋ー＋ー＋
                     #　｜Ｚ｜　｜
                     #　＋ー＋ー＋
-                    file = SqHelper.file(abs_sq)
-                    rank = SqHelper.rank(abs_sq)
-
-                    if file == 9 or rank < 7:
+                    if origin_file == 9 or origin_rank < 7:
                         continue
 
                 abs_sq_list.append(abs_sq)
 
             return abs_sq_list
-            # return [rel_sq + origin_sq for rel_sq in rel_sq_lst]
+            # return [rel_sq + origin_sq for rel_sq in rel_sq_list]
 
 
 
@@ -2287,6 +2268,7 @@ class SqHelper():
     @staticmethod
     def rank(sq):
         """段"""
+        print(f'[rank] sq: {sq}, sq%9: {sq%9}, sq%9+1: {sq%9+1}')
         return sq % 9 + 1
 
 
