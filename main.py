@@ -488,6 +488,27 @@ class Kifuwarabe():
                 """
                 self.subordinate.board.pop()
 
+            elif cmd[0] == 'ctrltest':
+                """利きテスト"""
+
+                if len(cmd)<2:
+                    print(f'miss\nexample: ctrltest 51')
+
+                else:
+                    sq_jsa = int(cmd[1])
+                    sq = convert_jsa_to_sq(sq_jsa)
+                    piece = self.subordinate.board.pieces[sq]
+
+                    try:
+                        # 移動先
+                        sq_list = self.colleague.control.sq_list_by(origin_sq=sq,
+                                                                    piece=piece)
+                        self.colleague.check_board_print.set_by_sq_list(sq_list=sq_list)
+                        self.colleague.check_board_print.do_it()
+
+                    except Exception as e:
+                        print(f'例外：　{e}')
+
             elif cmd[0] == 'debug':
                 """独自拡張。デバッグ
                 example: ５五に銀を打った時
@@ -519,7 +540,7 @@ class Kifuwarabe():
                 friend_value = self.colleague.static_exchange_evaluation.do_it(dst_sq)
                 print(f'[DEBUG] friend_value:{friend_value}')
 
-            elif cmd[0] == 'debug1':
+            elif cmd[0] == 'sqtest':
                 """独自拡張。デバッグ。マス番号の変換"""
                 for sq, piece in enumerate(self.subordinate.board.pieces):
                     jsa = sq_to_jsa(sq)
