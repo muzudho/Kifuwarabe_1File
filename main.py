@@ -1830,62 +1830,61 @@ class AlphaBetaPruning():
         if is_root:
             best_move_list = []
 
-        beta_cutoff = False
-
         for move in list(self.kifuwarabes_subordinate.board.legal_moves):
 
             self.kifuwarabes_subordinate.board.push(move)
             """一手指す"""
 
-            checked_beta = self.kifuwarabes_colleague.board_value.eval()
+            # ここで、局面は相手番に変わった
+
+            temp_value = self.kifuwarabes_colleague.board_value.eval()
             """あれば、決まりきった盤面評価値"""
 
-            if checked_beta is None:
+            if temp_value is None:
                 """別途、計算が必要なケース"""
 
                 if depth > 1:
-                    (current_beta, _move_list) = self.do_it(
+                    (temp_value, _move_list) = self.do_it(
                         depth=depth - 1,
                         alpha=-beta,    # ベーター値は、相手から見ればアルファー値
                         beta=-alpha)    # アルファー値は、相手から見ればベーター値
                     """将来獲得できるであろう、最低限の評価値"""
 
-                    current_alpha = -current_beta
-
                 else:
                     """末端局面評価値"""
 
                     # どんな手を指したか
-
-                    current_beta = self.on_eval_on_leaf(move_dst_sq=MoveHelper.destination(move))
-                    current_alpha = -current_beta
+                    temp_value = self.on_eval_on_leaf(move_dst_sq=MoveHelper.destination(move))
 
             else:
-                current_alpha = -checked_beta
+                pass
                 """盤面の決まりきった評価値"""
 
-            if beta < current_alpha:
-                """ベーター・カット"""
-                beta_cutoff = True
+            self.kifuwarabes_subordinate.board.pop()
+            """一手戻す"""
 
-            elif alpha < current_alpha:
-                alpha = current_alpha
+            # ここで、局面は自分の手番に戻った
+            temp_value = -temp_value
+
+            if alpha < temp_value:
+                alpha = temp_value
                 """いわゆるアルファー・アップデート。
                 自分が将来獲得できるであろう最低限の評価値が、増えた"""
 
                 if is_root:
                     best_move_list = [move]
 
-            elif is_root and current_alpha == alpha:
+                if beta <= alpha:
+                    """ベーター・カット
+                    最小値であるアルファーと、最大値であるベーターの間で、いい value を探索していたのに、
+                    最大値≦最小値になってしまった。
+                    これより先の兄弟に、取り得る選択肢はないので、探索を打ち切る
+                    """
+                    break
+
+            elif is_root and alpha == temp_value:
                 best_move_list.append(move)
                 """評価値が等しい指し手を追加"""
-
-            self.kifuwarabes_subordinate.board.pop()
-            """一手戻す"""
-
-            if beta_cutoff:
-                """これより先の兄弟は、選ばれることはないので打ち切る"""
-                break
 
         if is_root:
             return (alpha, best_move_list)
